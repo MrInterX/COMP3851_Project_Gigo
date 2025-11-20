@@ -202,32 +202,27 @@ npx expo start
 
 ---
 
-# 📋 每个人详细任务清单（Day1–Day5）
+# 📋 每个人详细任务清单 (仅供参考)
 
 ---
 
 ## 👤 成员 A – App 架构 & Auth & Navigation
 
-### Day 1
 - 初始化 Expo 项目  
 - 建立导航文件结构  
 - 创建空页面文件  
 - 初始化 supabaseClient  
 
-### Day 2
 - 配置 AuthStack + MainTab  
 - 登录前后路由流转逻辑  
 
-### Day 3
 - LoginScreen  
 - RegisterScreen  
 - session 管理  
 
-### Day 4
 - 公共组件（Button、InputField）  
 - 调整导航样式  
 
-### Day 5
 - 联调所有页面跳转  
 - 全局样式统一  
 
@@ -235,21 +230,16 @@ npx expo start
 
 ## 👤 成员 B – Job List + 筛选 + 广告位
 
-### Day 1
 - 创建 JobListScreen / JobCard / jobService  
 
-### Day 2
 - 拉取 jobs 列表并展示  
 
-### Day 3
 - 完成 JobCard  
 - 列表跳转详情页  
 
-### Day 4
 - industry/type 筛选  
 - 添加广告占位 Banner  
 
-### Day 5
 - JobList 全面测试  
 - UI 微调  
 
@@ -257,22 +247,17 @@ npx expo start
 
 ## 👤 成员 C – Job Detail + Apply + My Applications
 
-### Day 1
 - 创建 JobDetailScreen  
 - 创建 applicationService  
 
-### Day 2
 - JobDetail UI（假数据）  
 
-### Day 3
 - applyToJob  
 - 获取职位详情（jobs 表）  
 
-### Day 4
 - 实现申请人数 count  
 - MyApplicationsScreen  
 
-### Day 5
 - 全流程测试  
 - 修复申请流程相关 bug  
 
@@ -280,24 +265,19 @@ npx expo start
 
 ## 👤 成员 D – Supabase 数据库 + Profile + 文档
 
-### Day 1
 - 创建 users / jobs / applications 表  
 - 插入测试数据  
 - 初始化 userService  
 
-### Day 2
 - 同步字段命名与 API 规则  
 - Profile UI（假数据）  
 
-### Day 3
 - 读取用户资料（users 表）  
 - updateProfile 功能  
 
-### Day 4
 - 更新数据库文档  
 - 补充测试数据  
 
-### Day 5
 - Profile 测试  
 - 字段联调与修复  
 
@@ -388,30 +368,6 @@ git push origin feature/<branch-name>
 
 ---
 
-# 📋 任务看板建议
-使用 Google Sheet / Notion 建立：
-
-```
-To Do  
-In Progress  
-Review  
-Done  
-```
-
-每项任务标注负责人、预期完成日期。
-
----
-
-# 🕑 每日协作流程
-```
-09:00 更新昨日进度（群里）  
-21:00 统一合并 Pull Requests  
-21:00–21:10 群语音同步  
-21:10 分配次日任务  
-```
-
----
-
 # 🧩 编码风格指南
 - 函数式组件  
 - Hooks: useState / useEffect  
@@ -463,6 +419,4 @@ supabase
 # 🎉 结束语
 本 README 文档包含项目启动、分工、技术路线、数据库结构、协作规范等所有内容，是团队合作的统一标准。  
 请团队所有成员严格遵守，以确保项目顺利、高效完成。
-
-如需英文版或中英双语版本，也可以随时让我生成。
 
