@@ -37,7 +37,7 @@ Gig Job Placement App 是一个帮助求职者查找兼职与零工（Gig job）
 
 ---
 
-# ⭐ 核心功能（MVP）
+# 核心功能
 1. **用户注册 / 登录**  
 2. **职位列表（可筛选）**  
 3. **职位详情**（包含时薪、地点、描述、招聘人数）  
@@ -48,7 +48,7 @@ Gig Job Placement App 是一个帮助求职者查找兼职与零工（Gig job）
 
 ---
 
-# 🛠 技术栈
+# 技术栈
 
 | 分类 | 使用技术 |
 |------|----------|
@@ -62,7 +62,7 @@ Gig Job Placement App 是一个帮助求职者查找兼职与零工（Gig job）
 
 ---
 
-# 📁 项目结构
+# 项目结构
 以下是项目文件结构示例：
 
 ```
@@ -99,7 +99,7 @@ README.md
 
 ---
 
-# 💻 环境准备
+# 环境准备
 
 ### 1. 安装 Node.js  
 https://nodejs.org
@@ -145,7 +145,7 @@ npx expo start
 
 ---
 
-# 🧩 开发分工说明（非常重要）
+# 开发分工说明（非常重要）
 为了提高开发效率、减少互相阻塞风险，团队采用 **4 个独立模块** 的分工方式。
 
 ---
@@ -202,7 +202,7 @@ npx expo start
 
 ---
 
-# 📋 每个人详细任务清单 (仅供参考)
+# 每个人详细任务清单 (仅供参考)
 
 ---
 
@@ -283,7 +283,7 @@ npx expo start
 
 ---
 
-# 🔀 Git 协作规则
+# Git 协作规则
 
 ### 🚫 禁止直接 push 到 main  
 main 只能包含可运行版本。
@@ -309,7 +309,7 @@ git push origin feature/<branch-name>
 
 ---
 
-# 🗄 数据库设计
+# 数据库设计
 
 ## 1. users 表
 | 字段名 | 类型 | 说明 |
@@ -349,7 +349,7 @@ git push origin feature/<branch-name>
 
 ---
 
-# ⚠️ 注意事项
+# 注意事项
 - ❗ **不要上传 Supabase service key**  
 - 修改表结构需要同步团队  
 - 每次开发前必须 `git pull`  
@@ -359,7 +359,7 @@ git push origin feature/<branch-name>
 
 ---
 
-# 🤝 团队与ChatGPT协作规则
+# 团队与ChatGPT协作规则
 1. 使用 ChatGPT 前必须先提供本 README。  
 2. ChatGPT 不得更改技术路线（React Native + Supabase）。  
 3. ChatGPT 提供的代码必须本地运行后才能提交。  
@@ -368,7 +368,7 @@ git push origin feature/<branch-name>
 
 ---
 
-# 🧩 编码风格指南
+# 编码风格指南
 - 函数式组件  
 - Hooks: useState / useEffect  
 - 组件文件名使用 PascalCase  
@@ -377,7 +377,7 @@ git push origin feature/<branch-name>
 
 ---
 
-# 🌐 API 数据约定
+# API 数据约定
 
 ### 获取职位列表
 ```js
@@ -404,7 +404,7 @@ supabase
 
 ---
 
-# 🎬 Demo 演示流程
+# Demo 演示流程
 1. 注册新用户  
 2. 登录  
 3. 打开职位列表  
@@ -416,7 +416,7 @@ supabase
 
 ---
 
-# 🎉 结束语
+# 结束语
 本 README 文档包含项目启动、分工、技术路线、数据库结构、协作规范等所有内容，是团队合作的统一标准。  
 请团队所有成员严格遵守，以确保项目顺利、高效完成。
 
