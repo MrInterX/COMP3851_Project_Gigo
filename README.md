@@ -1,6 +1,5 @@
 # 📱 Gig Job Placement App
 一个使用 **React Native（Expo）+ Supabase** 开发的跨平台零工兼职匹配移动应用。  
-本项目由四名学生在线协作完成，目标是在 5 天内交付一个可运行的 MVP。
 
 ---
 
