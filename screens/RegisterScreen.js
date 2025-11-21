@@ -1,3 +1,4 @@
+// screens/RegisterScreen.js
 import React, { useState } from 'react';
 import {
   View,
@@ -9,21 +10,36 @@ import {
   Switch,
 } from 'react-native';
 
-export default function LoginScreen({ navigation }) {
+export default function RegisterScreen({ navigation }) {
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('forexample@gmail.com');
   const [password, setPassword] = useState('');
   const [remember, setRemember] = useState(false);
 
-  const handleLogin = () => {
-    console.log('login with', email, password);
+  const handleSignUp = () => {
+    // TODO: 之后接 supabase.auth.signUp
+    console.log('Sign up', fullName, email, password);
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.card}>
-        
-        <Text style={styles.title}>Welcome Back</Text>
-        <Text style={styles.subtitle}>Log in to find smart gigs that fit your life.</Text>
+
+        {/* Title */}
+        <Text style={styles.title}>Create an Account</Text>
+        <Text style={styles.subtitle}>Sign up to find smart gigs that fit your life.</Text>
+
+        {/* Full Name */}
+        <View style={styles.fieldGroup}>
+          <Text style={styles.label}>Full name</Text>
+          <TextInput
+            style={styles.input}
+            value={fullName}
+            onChangeText={setFullName}
+            placeholder="Zachary"
+            placeholderTextColor="#C0C0D2"
+          />
+        </View>
 
         {/* Email */}
         <View style={styles.fieldGroup}>
@@ -32,6 +48,8 @@ export default function LoginScreen({ navigation }) {
             style={styles.input}
             value={email}
             onChangeText={setEmail}
+            autoCapitalize="none"
+            keyboardType="email-address"
             placeholder="forexample@gmail.com"
             placeholderTextColor="#C0C0D2"
           />
@@ -50,37 +68,33 @@ export default function LoginScreen({ navigation }) {
           />
         </View>
 
-        {/* Remember + Forgot */}
+        {/* Remember */}
         <View style={styles.rowBetween}>
           <View style={styles.rowCenter}>
             <Switch value={remember} onValueChange={setRemember} />
             <Text style={styles.rememberText}>Remember me</Text>
           </View>
-          <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
+
+          <TouchableOpacity>
             <Text style={styles.forgotText}>Forgot Password ?</Text>
           </TouchableOpacity>
-
         </View>
 
-        {/* Login 按钮 */}
-        <TouchableOpacity
-          style={styles.loginButton}
-          onPress={() => navigation.navigate('Successfully')}
-          >
-          <Text style={styles.loginButtonText}>LOGIN</Text>
+        {/* SIGN UP button */}
+        <TouchableOpacity style={styles.loginButton} onPress={handleSignUp}>
+          <Text style={styles.loginButtonText}>SIGN UP</Text>
         </TouchableOpacity>
 
-
-        {/* Google 登录 */}
+        {/* Google Login */}
         <TouchableOpacity style={styles.googleButton}>
-          <Text style={styles.googleButtonText}>SIGN IN WITH GOOGLE</Text>
+          <Text style={styles.googleButtonText}>SIGN UP WITH GOOGLE</Text>
         </TouchableOpacity>
 
-        {/* Sign up 导航按钮 */}
+        {/* Already have account */}
         <View style={styles.bottomRow}>
-          <Text style={styles.bottomText}>You don&apos;t have an account yet? </Text>
-          <TouchableOpacity onPress={() => navigation.navigate("Register")}>
-            <Text style={styles.bottomLink}>Sign up</Text>
+          <Text style={styles.bottomText}>You have an account yet? </Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+            <Text style={styles.bottomLink}>Sign in</Text>
           </TouchableOpacity>
         </View>
 
@@ -91,6 +105,7 @@ export default function LoginScreen({ navigation }) {
 
 const PRIMARY = '#120042';
 const PRIMARY_DARK = '#1B0258';
+const CARD_BG = '#FFFFFF';
 
 const styles = StyleSheet.create({
   container: {
@@ -101,9 +116,12 @@ const styles = StyleSheet.create({
   },
   card: {
     borderRadius: 32,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: CARD_BG,
     paddingHorizontal: 24,
     paddingVertical: 32,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
     elevation: 4,
   },
   title: {
