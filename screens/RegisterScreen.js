@@ -18,7 +18,7 @@ export default function RegisterScreen({ navigation }) {
 
   const handleSignUp = () => {
     // TODO: 之后接 supabase.auth.signUp
-    console.log('Sign up', fullName, email, password);
+    navigation.navigate('SignupSuccess');
   };
 
   return (
@@ -75,9 +75,9 @@ export default function RegisterScreen({ navigation }) {
             <Text style={styles.rememberText}>Remember me</Text>
           </View>
 
-          <TouchableOpacity>
-            <Text style={styles.forgotText}>Forgot Password ?</Text>
-          </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
+                <Text style={styles.forgotText}>Forgot Password ?</Text>
+            </TouchableOpacity>
         </View>
 
         {/* SIGN UP button */}

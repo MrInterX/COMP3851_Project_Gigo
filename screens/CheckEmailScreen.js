@@ -2,69 +2,81 @@ import React, { useState } from 'react';
 import {
   View,
   Text,
-  TextInput,
   StyleSheet,
-  TouchableOpacity,
   SafeAreaView,
+  TouchableOpacity,
   Image,
+  TextInput,
 } from 'react-native';
 
 const PRIMARY = '#120042';
 const PRIMARY_DARK = '#1B0258';
 
-export default function ForgotPasswordScreen({ navigation }) {
-  const [email, setEmail] = useState('');
+export default function CheckEmailScreen({ navigation }) {
+  const [resetPassword, setResetPassword] = useState('');
 
-  const handleReset = () => {
- 
-  console.log('Reset password for:', email);
-  navigation.navigate('NewPassword');
-};
+  const handleConfirm = () => {
+    if (!resetPassword) {
+      alert('Please enter your new password');
+      return;
+    }
 
+
+    navigation.navigate('Successfully'); 
+
+  };
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.card}>
 
         {/* 标题 */}
-        <Text style={styles.title}>Forgot Password?</Text>
+        <Text style={styles.title}>Check Your Email</Text>
+
+        {/* 说明文字 */}
         <Text style={styles.subtitle}>
-          To reset your password, you need your email or mobile{'\n'}
-          number that can be authenticated
+          We have sent the reset password to your email address
         </Text>
 
         {/* 插图 */}
         <Image
-          source={require('../assets/images/forgotillustration.png')}
+          source={require('../assets/images/check.png')}
           style={styles.image}
           resizeMode="contain"
         />
 
-        {/* Email */}
+        {/* 输入框：请输入新的 reset 密码 */}
         <View style={styles.fieldGroup}>
-          <Text style={styles.label}>Email</Text>
           <TextInput
             style={styles.input}
-            value={email}
-            onChangeText={setEmail}
-            placeholder="example@gmail.com"
+            value={resetPassword}
+            onChangeText={setResetPassword}
+            placeholder="Enter your reset password"
             placeholderTextColor="#C0C0D2"
+            secureTextEntry
           />
         </View>
 
-        {/* Reset 按钮 */}
-        <TouchableOpacity style={styles.resetButton} onPress={handleReset}>
-            <Text style={styles.resetText}>RESET PASSWORD</Text>
+        {/* 确认按钮 */}
+        <TouchableOpacity style={styles.confirmButton} onPress={handleConfirm}>
+          <Text style={styles.confirmText}>CONFIRM</Text>
         </TouchableOpacity>
 
-
-        {/* Back to login */}
+        {/* 返回登录 */}
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.navigate('Login')}
         >
           <Text style={styles.backText}>BACK TO LOGIN</Text>
         </TouchableOpacity>
+
+        {/* Resend row */}
+        <View style={styles.resendRow}>
+          <Text style={styles.resendText}>You have not received the email? </Text>
+          <TouchableOpacity>
+            <Text style={styles.resendLink}>Resend</Text>
+          </TouchableOpacity>
+        </View>
 
       </View>
     </SafeAreaView>
@@ -91,10 +103,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   subtitle: {
-    marginTop: 6,
-    fontSize: 13,
-    textAlign: 'center',
+    marginTop: 12,
+    fontSize: 14,
     color: '#7B7B8F',
+    textAlign: 'center',
+    lineHeight: 20,
   },
   image: {
     width: '100%',
@@ -102,7 +115,10 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 10,
   },
-  fieldGroup: { marginTop: 20 },
+
+  fieldGroup: {
+    marginTop: 20,
+  },
   label: {
     fontSize: 13,
     color: PRIMARY,
@@ -110,25 +126,27 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 46,
-    backgroundColor: '#F5F6FA',
     borderRadius: 16,
+    backgroundColor: '#F5F6FA',
     paddingHorizontal: 16,
     fontSize: 14,
     color: PRIMARY_DARK,
   },
-  resetButton: {
-    marginTop: 28,
-    backgroundColor: PRIMARY_DARK,
+
+  confirmButton: {
+    marginTop: 24,
     height: 48,
     borderRadius: 16,
+    backgroundColor: PRIMARY_DARK,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  resetText: {
+  confirmText: {
     color: '#FFFFFF',
     fontSize: 15,
     fontWeight: '700',
   },
+
   backButton: {
     marginTop: 12,
     height: 48,
@@ -139,7 +157,22 @@ const styles = StyleSheet.create({
   },
   backText: {
     color: PRIMARY_DARK,
-    fontSize: 14,
+    fontSize: 15,
+    fontWeight: '700',
+  },
+
+  resendRow: {
+    marginTop: 16,
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+  resendText: {
+    fontSize: 12,
+    color: '#7B7B8F',
+  },
+  resendLink: {
+    fontSize: 12,
+    color: '#FF8A00',
     fontWeight: '600',
   },
 });

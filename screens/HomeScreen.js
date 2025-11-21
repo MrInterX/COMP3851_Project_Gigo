@@ -1,41 +1,54 @@
 // screens/HomeScreen.js
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  SafeAreaView,
+  Image,
+  Dimensions,
+} from 'react-native';
+
+const { height } = Dimensions.get('window');
+const PRIMARY = '#120042';
+const PRIMARY_DARK = '#1B0258';
+const ORANGE = '#FF8A00';
 
 export default function HomeScreen({ navigation }) {
-  const handleGetStarted = () => {
-    navigation.navigate('Login');
-  };
+  const handleNext = () => navigation.navigate('Login');
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* 顶部 Logo 文本 */}
-      <View style={styles.header}>
-        <Text style={styles.logoText}>Gigo</Text>
-      </View>
-
-      {/* 中间插画区：先用占位，可以后面换成 SVG 或图片 */}
-      <View style={styles.illustrationWrapper}>
-        <View style={styles.illustrationPlaceholder}>
-          <Text style={styles.illustrationText}>[ Illustration ]</Text>
+    <SafeAreaView style={styles.root}>
+      <View style={styles.card}>
+        {/* 顶部 Gigo */}
+        <View style={styles.header}>
+          <Text style={styles.logoText}>Gigo</Text>
         </View>
-      </View>
 
-      {/* 文案区 */}
-      <View style={styles.textSection}>
-        <Text style={styles.titleLine1}>Smart Gigs.</Text>
-        <Text style={styles.titleLine2}>Real Time.</Text>
-        <Text style={styles.titleLine2}>Just for You.</Text>
+        {/* 插画区域（占屏幕约 45%） */}
+        <View style={styles.illustrationWrapper}>
+          <Image
+            source={require('../assets/images/landingillustration.png')}
+            style={styles.illustration}
+            resizeMode="contain"
+          />
+        </View>
 
-        <Text style={styles.subtitle}>
-          Discover part-time jobs that match your skills, schedule, and goals — all in one place.
-        </Text>
-      </View>
+        {/* 文案区域（占屏幕约 30%） */}
+        <View style={styles.textSection}>
+          <Text style={styles.titleOrange}>Smart Gigs.</Text>
+          <Text style={styles.titleDark}>Real Time.</Text>
+          <Text style={styles.titleDark}>Just for You.</Text>
 
-      {/* 底部按钮 */}
-      <View style={styles.footer}>
-        <TouchableOpacity style={styles.nextButton} onPress={handleGetStarted}>
-          <Text style={styles.nextButtonText}>Get Started →</Text>
+          <Text style={styles.subtitle}>
+            Discover part-time jobs that match your skills, schedule, and goals — all in one place.
+          </Text>
+        </View>
+
+        {/* 右下角按钮（固定位置） */}
+        <TouchableOpacity style={styles.circleButton} onPress={handleNext}>
+          <Text style={styles.circleArrow}>➜</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -43,71 +56,78 @@ export default function HomeScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
+  root: {
     flex: 1,
-    backgroundColor: '#F7F4FF', // 接近 Figma 背景
-    paddingHorizontal: 24,
+    backgroundColor: '#EDEAFF', // 外层背景（接近你的截图）
   },
+
+  card: {
+    flex: 1,
+    margin: 12,
+    borderRadius: 32,
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 22,
+    paddingVertical: 18,
+  },
+
   header: {
-    marginTop: 12,
     alignItems: 'flex-end',
+    paddingBottom: 8,
   },
   logoText: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#120042',
+    color: PRIMARY_DARK,
   },
+
   illustrationWrapper: {
-    flex: 3,
+    height: height * 0.45, // 占屏幕45%
     justifyContent: 'center',
     alignItems: 'center',
   },
-  illustrationPlaceholder: {
+  illustration: {
     width: '100%',
-    height: 260,
-    borderRadius: 24,
-    backgroundColor: '#FFE4B5',
-    justifyContent: 'center',
-    alignItems: 'center',
+    height: '100%',
   },
-  illustrationText: {
-    color: '#9A5A00',
-    fontSize: 14,
-  },
+
   textSection: {
-    flex: 2,
+    height: height * 0.30, // 占屏幕30%
+    justifyContent: 'flex-start',
+    marginTop: 10,
   },
-  titleLine1: {
-    fontSize: 28,
+  titleOrange: {
+    fontSize: 30,
     fontWeight: '800',
-    color: '#FF8A00',
+    color: ORANGE,
   },
-  titleLine2: {
-    fontSize: 28,
+  titleDark: {
+    fontSize: 30,
     fontWeight: '800',
-    color: '#120042',
+    color: PRIMARY_DARK,
   },
   subtitle: {
     marginTop: 12,
-    fontSize: 14,
-    lineHeight: 20,
-    color: '#6B6B7A',
+    fontSize: 15,
+    lineHeight: 22,
+    color: '#6A6A7A',
   },
-  footer: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    marginBottom: 24,
+
+  // 固定在右下角
+  circleButton: {
+    position: 'absolute',
+    bottom: 28,
+    right: 24,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: PRIMARY_DARK,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  nextButton: {
-    alignSelf: 'flex-end',
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 999,
-    backgroundColor: '#3D1FFF',
-  },
-  nextButtonText: {
+  circleArrow: {
     color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 26,
+    fontWeight: '700',
+    marginLeft: 2,
   },
 });
