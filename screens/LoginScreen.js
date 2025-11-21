@@ -18,12 +18,17 @@ export default function LoginScreen({ navigation }) {
     console.log('login with', email, password);
   };
 
+  const handleGoogleLogin = () => {
+    navigation.navigate('GoogleEmail');
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.card}>
-        
         <Text style={styles.title}>Welcome Back</Text>
-        <Text style={styles.subtitle}>Log in to find smart gigs that fit your life.</Text>
+        <Text style={styles.subtitle}>
+          Log in to find smart gigs that fit your life.
+        </Text>
 
         {/* Email */}
         <View style={styles.fieldGroup}>
@@ -59,31 +64,31 @@ export default function LoginScreen({ navigation }) {
           <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
             <Text style={styles.forgotText}>Forgot Password ?</Text>
           </TouchableOpacity>
-
         </View>
 
         {/* Login 按钮 */}
         <TouchableOpacity
           style={styles.loginButton}
           onPress={() => navigation.navigate('Successfully')}
-          >
+        >
           <Text style={styles.loginButtonText}>LOGIN</Text>
         </TouchableOpacity>
 
-
         {/* Google 登录 */}
-        <TouchableOpacity style={styles.googleButton}>
+        <TouchableOpacity
+          style={styles.googleButton}
+          onPress={handleGoogleLogin}
+        >
           <Text style={styles.googleButtonText}>SIGN IN WITH GOOGLE</Text>
         </TouchableOpacity>
 
         {/* Sign up 导航按钮 */}
         <View style={styles.bottomRow}>
           <Text style={styles.bottomText}>You don&apos;t have an account yet? </Text>
-          <TouchableOpacity onPress={() => navigation.navigate("Register")}>
+          <TouchableOpacity onPress={() => navigation.navigate('Register')}>
             <Text style={styles.bottomLink}>Sign up</Text>
           </TouchableOpacity>
         </View>
-
       </View>
     </SafeAreaView>
   );

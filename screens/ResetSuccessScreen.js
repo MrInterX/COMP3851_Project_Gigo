@@ -1,3 +1,4 @@
+// screens/ResetSuccessScreen.js 
 import React from 'react';
 import {
   View,
@@ -5,43 +6,39 @@ import {
   StyleSheet,
   SafeAreaView,
   TouchableOpacity,
-  Image
+  Image,
 } from 'react-native';
 
 const PRIMARY = '#120042';
 const PRIMARY_DARK = '#1B0258';
 
-export default function SuccessfullyScreen({ navigation }) {
+export default function ResetSuccessScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.card}>
-
+        
         {/* 标题 */}
-        <Text style={styles.title}>Successfully</Text>
+        <Text style={styles.title}>Successful modification</Text>
 
-        {/* 插图 */}
+        {/* 成功插图 */}
         <Image
           source={require('../assets/images/successillustration.png')}
           style={styles.image}
           resizeMode="contain"
         />
-     <Text style={styles.subtitle}>
-              Congratulations on successfully logging into your account！
-            </Text>
-        {/* Continue */}
-        <TouchableOpacity
-          style={styles.primaryButton}
-          onPress={() => navigation.navigate('MainHome')}
-        >
-          <Text style={styles.primaryButtonText}>CONTINUE</Text>
-        </TouchableOpacity>
 
-        {/* Back to login */}
+        {/* 副标题说明 */}
+        <Text style={styles.subtitle}>
+          Your password has been updated.{'\n'}
+          Please change your password regularly to keep your account safe.
+        </Text>
+
+        {/* 回到登录 */}
         <TouchableOpacity
-          style={styles.secondaryButton}
+          style={styles.backButton}
           onPress={() => navigation.navigate('Login')}
         >
-          <Text style={styles.secondaryButtonText}>BACK TO LOGIN</Text>
+          <Text style={styles.backText}>BACK TO LOGIN</Text>
         </TouchableOpacity>
 
       </View>
@@ -63,47 +60,38 @@ const styles = StyleSheet.create({
     paddingVertical: 32,
   },
   title: {
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: '800',
     color: PRIMARY_DARK,
     textAlign: 'center',
   },
-  subtitle: {
-    marginTop: 8,
-    fontSize: 14,
-    color: '#7B7B8F',
-    textAlign: 'center',
-  },
+
+  /* ⭐ 新增插图样式（保持统一风格）⭐ */
   image: {
     width: '100%',
     height: 160,
-    marginTop: 25,
-    marginBottom: 20,
+    marginTop: 24,
+    marginBottom: 24,
   },
-  primaryButton: {
+
+  subtitle: {
+    marginTop: 4,
+    fontSize: 14,
+    color: '#7B7B8F',
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  backButton: {
+    marginTop: 32,
     height: 48,
-    backgroundColor: PRIMARY_DARK,
     borderRadius: 16,
+    backgroundColor: PRIMARY_DARK,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 10,
   },
-  primaryButtonText: {
+  backText: {
     color: '#FFFFFF',
     fontSize: 15,
     fontWeight: '700',
-  },
-  secondaryButton: {
-    height: 48,
-    backgroundColor: '#ECE6FF',
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 12,
-  },
-  secondaryButtonText: {
-    color: PRIMARY_DARK,
-    fontSize: 14,
-    fontWeight: '600',
   },
 });
