@@ -1,164 +1,154 @@
-// screens/JobListScreen.js
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
-  ScrollView,
+  FlatList,
   StyleSheet,
   TouchableOpacity,
+  SafeAreaView,
   ActivityIndicator,
-  RefreshControl,
-} from 'react-native';
-import SearchBar from '../components/SearchBar';
-import JobCard from '../components/JobCard';
-import { Ionicons } from '@expo/vector-icons';
-import { getJobs } from '../services/jobService';
+} from "react-native";
 
-export default function JobListScreen({ navigation, route }) {
-  const initialCategory = route.params?.category;
-  const initialJobType = route.params?.jobType;
-  const initialKeyword = route.params?.keyword || '';
+import SearchBar from "../components/SearchBar";
+import JobCard from "../components/JobCard";
+import { Ionicons } from "@expo/vector-icons";
+import { supabase } from "../services/supabaseClient";
 
-  const [search, setSearch] = useState(initialKeyword);
+// 推荐词
+const hotKeywords = ["Waiter", "Part-time jobs", "Barista", "Kitchen Crew"];
+
+export default function JobListScreen({ navigation }) {
   const [jobs, setJobs] = useState([]);
+  const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    load();
-  }, [search, initialCategory, initialJobType]);
+  // 🟦 读取 Supabase jobs 表
+  const fetchJobs = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("jobs")
+      .select("*")
+      .order("posted_at", { ascending: false });
 
-  async function load() {
-    try {
-      setLoading(true);
-      const data = await getJobs({
-        search: search?.trim() || undefined,
-        category: initialCategory,
-        jobType: initialJobType,
-      });
+    if (error) {
+      console.log("❌ Fetch jobs error:", error);
+    } else {
       setJobs(data);
-    } catch (err) {
-      console.log('load jobs error', err);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  const renderJobs = () => {
-    if (loading) {
-      return (
-        <View style={styles.center}>
-          <ActivityIndicator />
-          <Text style={styles.meta}>Loading jobs...</Text>
-        </View>
-      );
     }
 
-    if (!jobs || jobs.length === 0) {
-      return (
-        <View style={styles.center}>
-          <Text style={styles.emptyTitle}>No jobs found</Text>
-          <Text style={styles.meta}>Try another keyword or adjust filters.</Text>
-          <TouchableOpacity style={styles.secondaryBtn} onPress={() => navigation.navigate('Filter')}>
-            <Text style={styles.secondaryText}>Open Filters</Text>
-          </TouchableOpacity>
-        </View>
-      );
-    }
-
-    return jobs.map((job) => {
-      const salaryText = job.salary_min
-        ? `From $${job.salary_min} / ${job.salary_unit || 'hour'}`
-        : 'Salary not provided';
-
-      return (
-        <JobCard
-          key={job.id}
-          title={job.title}
-          company={job.company}
-          location={job.location}
-          jobType={job.job_type}
-          salaryText={salaryText}
-          onPress={() => navigation.navigate('JobDetail', { jobId: job.id })}
-        />
-      );
-    });
+    setLoading(false);
   };
 
+  useEffect(() => {
+    fetchJobs();
+  }, []);
+
+  // 🟦 搜索过滤（title / company / location）
+  const filteredJobs = jobs.filter((job) =>
+    job.title.toLowerCase().includes(search.toLowerCase()) ||
+    job.company.toLowerCase().includes(search.toLowerCase()) ||
+    job.location.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
-    <ScrollView
-      style={styles.container}
-      refreshControl={<RefreshControl refreshing={loading} onRefresh={load} />}
-    >
-      {/* 🔍 Search Row */}
-      <View style={styles.searchRow}>
-        <SearchBar
-          value={search}
-          onChangeText={setSearch}
-          placeholder="Search job title or keywords"
-          style={{ flex: 1 }}
-        />
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
+      <View style={{ flex: 1 }}>
+        {/* 顶部搜索栏 */}
+        <View style={styles.searchRow}>
+          <SearchBar
+            value={search}
+            onChangeText={setSearch}
+            placeholder="Search job title or keywords"
+            style={{ flex: 1 }}
+          />
+          <TouchableOpacity
+            onPress={() => navigation.navigate("Filter")}
+          >
+            <Ionicons name="options-outline" size={28} color="#150B3D" />
+          </TouchableOpacity>
+        </View>
 
-        <TouchableOpacity onPress={() => navigation.navigate('Filter')}>
-          <Ionicons name="options-outline" size={28} color="#4B3F72" />
-        </TouchableOpacity>
+        {/* 推荐搜索 */}
+        <Text style={styles.hotTitle}>Recommended searches</Text>
+        <View style={styles.hotRow}>
+          {hotKeywords.map((keyword, index) => (
+            <TouchableOpacity
+              key={index}
+              style={styles.hotTag}
+              onPress={() => setSearch(keyword)}
+            >
+              <Text style={styles.hotText}>{keyword}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* 数据加载中 */}
+        {loading && (
+          <ActivityIndicator size="large" color="#150B3D" style={{ marginTop: 20 }} />
+        )}
+
+        {/* 职位列表 */}
+        {!loading && (
+          <FlatList
+            data={filteredJobs}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <JobCard
+                title={item.title}
+                company={item.company}
+                location={item.location}
+                type={item.job_type}
+                salary={`${item.salary_min} / ${item.salary_unit}`}
+                icon="briefcase-outline"
+                onPress={() =>
+                  navigation.navigate("JobDetail", { jobId: item.id })
+                }
+              />
+            )}
+            ListEmptyComponent={
+              <Text style={{ textAlign: "center", marginTop: 40, color: "#999" }}>
+                No jobs found
+              </Text>
+            }
+            contentContainerStyle={{ paddingBottom: 120, marginTop: 10 }}
+          />
+        )}
       </View>
-
-      {/* 🔥 Title */}
-      <Text style={styles.sectionTitle}>Recommended Jobs</Text>
-
-      {/* 📌 Job Cards */}
-      {renderJobs()}
-
-      {/* 🔗 Specialization 跳转 */}
-      <TouchableOpacity
-        style={styles.specialButton}
-        onPress={() => navigation.navigate("Specialization")}
-      >
-        <Text style={styles.specialText}>Explore Specializations →</Text>
-      </TouchableOpacity>
-
-    </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 18,
-    backgroundColor: '#FFFFFF',
-  },
   searchRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 14,
-    marginBottom: 20,
-  },
-  sectionTitle: {
-    fontSize: 22,
-    fontWeight: "700",
     marginBottom: 16,
-  },
-  center: { alignItems: 'center', justifyContent: 'center', paddingVertical: 20 },
-  meta: { marginTop: 6, fontSize: 13, color: '#777' },
-  emptyTitle: { fontSize: 18, fontWeight: '700', color: '#1A1A1A' },
-  secondaryBtn: {
-    marginTop: 14,
-    paddingVertical: 12,
     paddingHorizontal: 18,
-    borderRadius: 12,
-    backgroundColor: '#F5F0FF',
+    marginTop: 10,
   },
-  secondaryText: { color: '#4B3F72', fontWeight: '700' },
-  specialButton: {
-    marginTop: 20,
-    paddingVertical: 14,
-    backgroundColor: "#F5F0FF",
-    borderRadius: 12,
-  },
-  specialText: {
-    textAlign: "center",
-    color: "#4B3F72",
+  hotTitle: {
     fontSize: 16,
+    fontWeight: "700",
+    marginBottom: 10,
+    paddingHorizontal: 18,
+    color: "#150B3D",
+  },
+  hotRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
+    marginBottom: 16,
+    paddingHorizontal: 18,
+  },
+  hotTag: {
+    backgroundColor: "#F4F4F4",
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 14,
+  },
+  hotText: {
+    color: "#150B3D",
     fontWeight: "600",
-  }
+  },
 });
