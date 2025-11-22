@@ -8,6 +8,7 @@ import {
   SafeAreaView,
   Image,
 } from 'react-native';
+import { supabase } from '../services/supabaseClient';
 
 const PRIMARY = '#120042';
 const PRIMARY_DARK = '#1B0258';
@@ -16,10 +17,21 @@ export default function ForgotPasswordScreen({ navigation }) {
   const [email, setEmail] = useState('');
 
   const handleReset = () => {
- 
-  console.log('Reset password for:', email);
-  navigation.navigate('NewPassword');
-};
+    if (!email) {
+      alert('Please enter your email');
+      return;
+    }
+    supabase.auth
+      .resetPasswordForEmail(email)
+      .then(({ error }) => {
+        if (error) {
+          alert(error.message);
+          return;
+        }
+        navigation.navigate('CheckEmail');
+      })
+      .catch((err) => alert(err.message));
+  };
 
 
   return (
