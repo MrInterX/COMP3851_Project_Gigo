@@ -67,17 +67,28 @@ export default function MainHomeScreen({ navigation }) {
           {/* 搜索区 */}
           <Text style={styles.sectionTitle}>Find Your Job</Text>
           <View style={styles.searchRow}>
-            <View style={styles.searchBox}>
-              <TextInput
-                style={styles.searchInput}
-                placeholder="Search job title or keywords"
-                placeholderTextColor="#C0C0D2"
-              />
-            </View>
-            <TouchableOpacity style={styles.filterButton}>
+
+            {/* 点击搜索栏 → 跳转到 JobListScreen */}
+            <TouchableOpacity
+              style={styles.searchBox}
+              activeOpacity={0.8}
+              onPress={() => navigation.navigate("JobList")}
+            >
+              <Text style={[styles.searchInput, { color: "#C0C0D2" }]}>
+                Search job title or keywords
+              </Text>
+            </TouchableOpacity>
+
+            {/* Filter Button */}
+            <TouchableOpacity
+              style={styles.filterButton}
+              onPress={() => navigation.navigate("Specialization")}
+            >
               <Text style={styles.filterIcon}>⛭</Text>
             </TouchableOpacity>
+
           </View>
+
 
           {/* 统计卡片（改成按钮） */}
           <View style={styles.statsRow}>
