@@ -7,6 +7,7 @@
 # 请使用feature/... 命名分支，VSCode可以生成详细的提交信息。
 # docs/db-schema.md 是数据库的基本信息；.env.example 是supabase的链接和密钥（放在项目根目录然后删掉.example）
 直接用最新的: Latest!这个目前可以跑
+直接用最新的主分支这个目前可以跑
 ---
 
 # 📱 Gig Job Placement App
