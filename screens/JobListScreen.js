@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,73 +6,48 @@ import {
   StyleSheet,
   TouchableOpacity,
   SafeAreaView,
+  ActivityIndicator,
 } from "react-native";
 
 import SearchBar from "../components/SearchBar";
 import JobCard from "../components/JobCard";
 import { Ionicons } from "@expo/vector-icons";
+import { supabase } from "../services/supabaseClient";
 
-// 推荐搜索关键词
+// 推荐词
 const hotKeywords = ["Waiter", "Part-time jobs", "Barista", "Kitchen Crew"];
 
-export default function JobListScreen({ navigation, route }) {
-  const initialCategory = route.params?.category;
-  const initialJobType = route.params?.jobType;
-  const initialKeyword = route.params?.keyword || '';
+export default function JobListScreen({ navigation }) {
+  const [jobs, setJobs] = useState([]);
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  // mock 数据（无数据库也可运行）
-  const mockJobs = [
-    {
-      id: 1,
-      title: "Waiter",
-      company: "Marina Bay Sands",
-      location: "Singapore",
-      job_type: "Full time",
-      salary_min: 18000,
-      salary_max: 23000,
-    },
-    {
-      id: 2,
-      title: "Kitchen Crew",
-      company: "Jollibee",
-      location: "Singapore",
-      job_type: "Part time",
-      salary_min: 12000,
-      salary_max: 15000,
-    },
+  // 🟦 读取 Supabase jobs 表
+  const fetchJobs = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("jobs")
+      .select("*")
+      .order("posted_at", { ascending: false });
 
-      {
-    id: 3,
-    title: "Part-Time Service Crew",
-    company: "Starbucks",
-    location: "Bugis, Singapore",
-    job_type: "Part time",
-    salary_min: 12000,
-    salary_max: 16000,
-  },
-  {
-    id: 4,
-    title: "Retail Assistant",
-    company: "UNIQLO",
-    location: "Tampines",
-    job_type: "Full time",
-    salary_min: 18000,
-    salary_max: 22000,
-  },
-  {
-    id: 5,
-    title: "Warehouse Packer",
-    company: "Shopee",
-    location: "Changi",
-    job_type: "Shift",
-    salary_min: 14000,
-    salary_max: 20000,
-  },
+    if (error) {
+      console.log("❌ Fetch jobs error:", error);
+    } else {
+      setJobs(data);
+    }
 
-  ];
+    setLoading(false);
+  };
 
-  const filteredJobs = mockJobs.filter((job) =>
-    job.title.toLowerCase().includes(search.toLowerCase())
+  useEffect(() => {
+    fetchJobs();
+  }, []);
+
+  // 🟦 搜索过滤（title / company / location）
+  const filteredJobs = jobs.filter((job) =>
+    job.title.toLowerCase().includes(search.toLowerCase()) ||
+    job.company.toLowerCase().includes(search.toLowerCase()) ||
+    job.location.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -86,8 +61,9 @@ export default function JobListScreen({ navigation, route }) {
             placeholder="Search job title or keywords"
             style={{ flex: 1 }}
           />
-
-          <TouchableOpacity onPress={() => navigation.navigate("Filter")}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("Filter")}
+          >
             <Ionicons name="options-outline" size={28} color="#150B3D" />
           </TouchableOpacity>
         </View>
@@ -106,20 +82,27 @@ export default function JobListScreen({ navigation, route }) {
           ))}
         </View>
 
+        {/* 数据加载中 */}
+        {loading && (
+          <ActivityIndicator size="large" color="#150B3D" style={{ marginTop: 20 }} />
+        )}
+
         {/* 职位列表 */}
-        <View style={{ flex: 1 }}>
+        {!loading && (
           <FlatList
             data={filteredJobs}
-            keyExtractor={(item) => item.id.toString()}
+            keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
               <JobCard
                 title={item.title}
                 company={item.company}
                 location={item.location}
                 type={item.job_type}
-                salary={`$${item.salary_min / 1000}k - $${item.salary_max / 1000}k`}
+                salary={`${item.salary_min} / ${item.salary_unit}`}
                 icon="briefcase-outline"
-                onPress={() => navigation.navigate("JobDetail", { jobId: item.id })}
+                onPress={() =>
+                  navigation.navigate("JobDetail", { jobId: item.id })
+                }
               />
             )}
             ListEmptyComponent={
@@ -127,9 +110,9 @@ export default function JobListScreen({ navigation, route }) {
                 No jobs found
               </Text>
             }
-            contentContainerStyle={{ paddingBottom: 120 }}
+            contentContainerStyle={{ paddingBottom: 120, marginTop: 10 }}
           />
-        </View>
+        )}
       </View>
     </SafeAreaView>
   );
