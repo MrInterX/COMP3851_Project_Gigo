@@ -1,38 +1,94 @@
 // screens/JobListScreen.js
-import React, { useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import {
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+  RefreshControl,
+} from 'react-native';
 import SearchBar from '../components/SearchBar';
-import FilterButton from '../components/FilterButton';
 import JobCard from '../components/JobCard';
 import { Ionicons } from '@expo/vector-icons';
+import { getJobs } from '../services/jobService';
 
-export default function JobListScreen({ navigation }) {
-  const [search, setSearch] = useState("");
+export default function JobListScreen({ navigation, route }) {
+  const initialCategory = route.params?.category;
+  const initialJobType = route.params?.jobType;
+  const initialKeyword = route.params?.keyword || '';
 
-  // 🟦 临时数据（让页面能跑）
-  const jobs = [
-    {
-      id: 1,
-      title: "Part-Time Service Crew",
-      company: "Starbucks",
-      location: "Bugis, Singapore",
-      type: "Part-time",
-      salary: "$12 / Hour",
-      icon: "cafe-outline",
-    },
-    {
-      id: 2,
-      title: "Warehouse Assistant",
-      company: "Lazada",
-      location: "Malaysia",
-      type: "Full-time",
-      salary: "$2000 / Month",
-      icon: "cube-outline",
-    },
-  ];
+  const [search, setSearch] = useState(initialKeyword);
+  const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    load();
+  }, [search, initialCategory, initialJobType]);
+
+  async function load() {
+    try {
+      setLoading(true);
+      const data = await getJobs({
+        search: search?.trim() || undefined,
+        category: initialCategory,
+        jobType: initialJobType,
+      });
+      setJobs(data);
+    } catch (err) {
+      console.log('load jobs error', err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const renderJobs = () => {
+    if (loading) {
+      return (
+        <View style={styles.center}>
+          <ActivityIndicator />
+          <Text style={styles.meta}>Loading jobs...</Text>
+        </View>
+      );
+    }
+
+    if (!jobs || jobs.length === 0) {
+      return (
+        <View style={styles.center}>
+          <Text style={styles.emptyTitle}>No jobs found</Text>
+          <Text style={styles.meta}>Try another keyword or adjust filters.</Text>
+          <TouchableOpacity style={styles.secondaryBtn} onPress={() => navigation.navigate('Filter')}>
+            <Text style={styles.secondaryText}>Open Filters</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+
+    return jobs.map((job) => {
+      const salaryText = job.salary_min
+        ? `From $${job.salary_min} / ${job.salary_unit || 'hour'}`
+        : 'Salary not provided';
+
+      return (
+        <JobCard
+          key={job.id}
+          title={job.title}
+          company={job.company}
+          location={job.location}
+          jobType={job.job_type}
+          salaryText={salaryText}
+          onPress={() => navigation.navigate('JobDetail', { jobId: job.id })}
+        />
+      );
+    });
+  };
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView
+      style={styles.container}
+      refreshControl={<RefreshControl refreshing={loading} onRefresh={load} />}
+    >
       {/* 🔍 Search Row */}
       <View style={styles.searchRow}>
         <SearchBar
@@ -51,18 +107,7 @@ export default function JobListScreen({ navigation }) {
       <Text style={styles.sectionTitle}>Recommended Jobs</Text>
 
       {/* 📌 Job Cards */}
-      {jobs.map((job) => (
-        <JobCard
-          key={job.id}
-          title={job.title}
-          company={job.company}
-          location={job.location}
-          type={job.type}
-          salary={job.salary}
-          icon={job.icon}
-          onPress={() => navigation.navigate("Search")} // 示例跳转
-        />
-      ))}
+      {renderJobs()}
 
       {/* 🔗 Specialization 跳转 */}
       <TouchableOpacity
@@ -93,6 +138,17 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     marginBottom: 16,
   },
+  center: { alignItems: 'center', justifyContent: 'center', paddingVertical: 20 },
+  meta: { marginTop: 6, fontSize: 13, color: '#777' },
+  emptyTitle: { fontSize: 18, fontWeight: '700', color: '#1A1A1A' },
+  secondaryBtn: {
+    marginTop: 14,
+    paddingVertical: 12,
+    paddingHorizontal: 18,
+    borderRadius: 12,
+    backgroundColor: '#F5F0FF',
+  },
+  secondaryText: { color: '#4B3F72', fontWeight: '700' },
   specialButton: {
     marginTop: 20,
     paddingVertical: 14,

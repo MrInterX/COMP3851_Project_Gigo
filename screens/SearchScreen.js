@@ -2,20 +2,13 @@
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
 import SearchBar from "../components/SearchBar";
-import FilterButton from "../components/FilterButton";
 import { Ionicons } from "@expo/vector-icons";
 
 export default function SearchScreen({ navigation }) {
   const [keyword, setKeyword] = useState("");
 
   const handleSearch = () => {
-    if (keyword.trim() === "") {
-      // 如果搜索框是空的 → 跳"无结果页"
-      navigation.navigate("NoResult");
-    } else {
-      // 之后可改成跳搜索结果页
-      navigation.navigate("NoResult");
-    }
+    navigation.navigate("JobList", { keyword });
   };
 
   return (

@@ -1,35 +1,81 @@
 // screens/MainHomeScreen.js
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   SafeAreaView,
   View,
   Text,
   StyleSheet,
-  TextInput,
   TouchableOpacity,
   ScrollView,
-  Alert,
+  ActivityIndicator,
 } from 'react-native';
+import JobCard from '../components/JobCard';
+import { getJobs } from '../services/jobService';
 
 const PRIMARY = '#120042';
 const PRIMARY_DARK = '#1B0258';
 const ORANGE = '#FF8A00';
 
 export default function MainHomeScreen({ navigation }) {
-  const handleStatPress = (type) => {
-    Alert.alert('Filter', `You tapped: ${type}`);
-    // 以后可以改成 navigation.navigate('JobList', { type })
-  };
+  const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleBottomNavPress = (tab) => {
-    Alert.alert('Nav', `You tapped: ${tab}`);
-    // 以后可以改成真正切换 Tab 或跳转页面
+  useEffect(() => {
+    loadJobs();
+  }, []);
+
+  async function loadJobs() {
+    try {
+      setLoading(true);
+      const data = await getJobs({ limit: 5 });
+      setJobs(data);
+    } catch (err) {
+      console.log('load home jobs error', err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const renderJobs = () => {
+    if (loading) {
+      return (
+        <View style={styles.center}>
+          <ActivityIndicator />
+          <Text style={styles.meta}>Loading recent jobs...</Text>
+        </View>
+      );
+    }
+
+    if (!jobs || jobs.length === 0) {
+      return (
+        <View style={styles.center}>
+          <Text style={styles.meta}>No jobs yet. Try searching.</Text>
+        </View>
+      );
+    }
+
+    return jobs.map((job) => {
+      const salaryText = job.salary_min
+        ? `From $${job.salary_min} / ${job.salary_unit || 'hour'}`
+        : 'Salary not provided';
+
+      return (
+        <JobCard
+          key={job.id}
+          title={job.title}
+          company={job.company}
+          location={job.location}
+          jobType={job.job_type}
+          salaryText={salaryText}
+          onPress={() => navigation.navigate('JobDetail', { jobId: job.id })}
+        />
+      );
+    });
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.inner}>
-        {/* 上半部分：可滚动内容 */}
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
@@ -38,64 +84,55 @@ export default function MainHomeScreen({ navigation }) {
           <View style={styles.headerRow}>
             <View>
               <Text style={styles.helloText}>Hello</Text>
-              <Text style={styles.nameText}>*****</Text>
+              <Text style={styles.nameText}>Welcome back</Text>
             </View>
             <TouchableOpacity
-                style={styles.avatar}
-                activeOpacity={0.7}
-                onPress={() => Alert.alert('Profile', 'You tapped your profile icon')}
-                >
-                <Text style={styles.avatarText}>*</Text>
+              style={styles.avatar}
+              activeOpacity={0.7}
+              onPress={() => navigation.navigate('Profile')}
+            >
+              <Text style={styles.avatarText}>☺</Text>
             </TouchableOpacity>
-
           </View>
 
           {/* Banner 区域 */}
           <View style={styles.banner}>
             <View style={{ flex: 1 }}>
               <Text style={styles.bannerTitle}>
-                50% off{'\n'}take any courses
+                Find smarter gigs{'\n'}tailored for you
               </Text>
-              <TouchableOpacity style={styles.bannerButton}>
-                <Text style={styles.bannerButtonText}>Join Now</Text>
+              <TouchableOpacity style={styles.bannerButton} onPress={() => navigation.navigate('JobList')}>
+                <Text style={styles.bannerButtonText}>Browse Jobs</Text>
               </TouchableOpacity>
             </View>
-            {/* 右侧人物占位 */}
-            
           </View>
 
           {/* 搜索区 */}
           <Text style={styles.sectionTitle}>Find Your Job</Text>
           <View style={styles.searchRow}>
-
-            {/* 点击搜索栏 → 跳转到 JobListScreen */}
             <TouchableOpacity
               style={styles.searchBox}
               activeOpacity={0.8}
-              onPress={() => navigation.navigate("JobList")}
+              onPress={() => navigation.navigate('JobList')}
             >
-              <Text style={[styles.searchInput, { color: "#C0C0D2" }]}>
+              <Text style={[styles.searchInput, { color: '#C0C0D2' }]}>
                 Search job title or keywords
               </Text>
             </TouchableOpacity>
 
-            {/* Filter Button */}
             <TouchableOpacity
               style={styles.filterButton}
-              onPress={() => navigation.navigate("Specialization")}
+              onPress={() => navigation.navigate('Specialization')}
             >
               <Text style={styles.filterIcon}>⛭</Text>
             </TouchableOpacity>
-
           </View>
-
 
           {/* 统计卡片（改成按钮） */}
           <View style={styles.statsRow}>
-            {/* Remote Job */}
             <TouchableOpacity
               style={[styles.statCard, { backgroundColor: '#E4F4FF' }]}
-              onPress={() => handleStatPress('Remote Job')}
+              onPress={() => navigation.navigate('JobList', { jobType: 'Remote' })}
               activeOpacity={0.8}
             >
               <Text style={styles.statNumber}>44.5k</Text>
@@ -103,20 +140,18 @@ export default function MainHomeScreen({ navigation }) {
             </TouchableOpacity>
 
             <View style={styles.statsColRight}>
-              {/* Full Time */}
               <TouchableOpacity
                 style={[styles.statCardSmall, { backgroundColor: '#E5DEFF' }]}
-                onPress={() => handleStatPress('Full Time')}
+                onPress={() => navigation.navigate('JobList', { jobType: 'Full-time' })}
                 activeOpacity={0.8}
               >
                 <Text style={styles.statNumberSmall}>38.9k</Text>
                 <Text style={styles.statLabelSmall}>Full Time</Text>
               </TouchableOpacity>
 
-              {/* Part Time */}
               <TouchableOpacity
                 style={[styles.statCardSmall, { backgroundColor: '#FFE4C4' }]}
-                onPress={() => handleStatPress('Part Time')}
+                onPress={() => navigation.navigate('JobList', { jobType: 'Part-time' })}
                 activeOpacity={0.8}
               >
                 <Text style={styles.statNumberSmall}>66.8k</Text>
@@ -126,141 +161,23 @@ export default function MainHomeScreen({ navigation }) {
           </View>
 
           {/* Recent Job List */}
-          <Text style={styles.sectionTitle}>Recent Job List</Text>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Recent Job List</Text>
+            <TouchableOpacity onPress={() => navigation.navigate('JobList')}>
+              <Text style={styles.link}>See all</Text>
+            </TouchableOpacity>
+          </View>
 
-          {/* Job 1 */}
-<View style={styles.jobCard}>
-  <View style={styles.jobLogo}>
-    <Text style={styles.jobLogoText}>🍕</Text>
-  </View>
+          {renderJobs()}
 
-  <View style={{ flex: 1 }}>
-    <Text style={styles.jobTitle}>Part-Time Kitchen Assistant</Text>
-    <Text style={styles.jobCompany}>Pizza Hut · Jurong</Text>
-    <Text style={styles.jobSalary}>
-      From <Text style={{ fontWeight: '700' }}>$10</Text>/hour
-    </Text>
-
-    <View style={styles.jobTagsRow}>
-      <View style={styles.jobTag}><Text style={styles.jobTagText}>Entry Level</Text></View>
-      <View style={styles.jobTag}><Text style={styles.jobTagText}>Shift</Text></View>
-    </View>
-  </View>
-
-  <TouchableOpacity style={styles.applyButton}>
-    <Text style={styles.applyText}>Apply</Text>
-  </TouchableOpacity>
-</View>
-
-
-{/* Job 2 */}
-<View style={styles.jobCard}>
-  <View style={styles.jobLogo}>
-    <Text style={styles.jobLogoText}>📦</Text>
-  </View>
-
-  <View style={{ flex: 1 }}>
-    <Text style={styles.jobTitle}>Warehouse Packer</Text>
-    <Text style={styles.jobCompany}>Shopee · Singapore</Text>
-    <Text style={styles.jobSalary}>
-      From <Text style={{ fontWeight: '700' }}>$14</Text>/hour
-    </Text>
-
-    <View style={styles.jobTagsRow}>
-      <View style={styles.jobTag}><Text style={styles.jobTagText}>Full-time</Text></View>
-      <View style={styles.jobTag}><Text style={styles.jobTagText}>Night Shift</Text></View>
-    </View>
-  </View>
-
-  <TouchableOpacity style={styles.applyButton}>
-    <Text style={styles.applyText}>Apply</Text>
-  </TouchableOpacity>
-</View>
-
-
-{/* Job 3 */}
-<View style={styles.jobCard}>
-  <View style={styles.jobLogo}>
-    <Text style={styles.jobLogoText}>📞</Text>
-  </View>
-
-  <View style={{ flex: 1 }}>
-    <Text style={styles.jobTitle}>Customer Support Agent</Text>
-    <Text style={styles.jobCompany}>Grab · Tanjong Pagar</Text>
-    <Text style={styles.jobSalary}>
-      From <Text style={{ fontWeight: '700' }}>$18</Text>/hour
-    </Text>
-
-    <View style={styles.jobTagsRow}>
-      <View style={styles.jobTag}><Text style={styles.jobTagText}>Remote</Text></View>
-      <View style={styles.jobTag}><Text style={styles.jobTagText}>Flexible</Text></View>
-    </View>
-  </View>
-
-  <TouchableOpacity style={styles.applyButton}>
-    <Text style={styles.applyText}>Apply</Text>
-  </TouchableOpacity>
-</View>
-
-
-{/* Job 4 */}
-<View style={styles.jobCard}>
-  <View style={styles.jobLogo}>
-    <Text style={styles.jobLogoText}>🛒</Text>
-  </View>
-
-  <View style={{ flex: 1 }}>
-    <Text style={styles.jobTitle}>Retail Assistant</Text>
-    <Text style={styles.jobCompany}>FairPrice · Clementi</Text>
-    <Text style={styles.jobSalary}>
-      From <Text style={{ fontWeight: '700' }}>$11</Text>/hour
-    </Text>
-
-    <View style={styles.jobTagsRow}>
-      <View style={styles.jobTag}><Text style={styles.jobTagText}>Part-time</Text></View>
-      <View style={styles.jobTag}><Text style={styles.jobTagText}>Immediate</Text></View>
-    </View>
-  </View>
-
-  <TouchableOpacity style={styles.applyButton}>
-    <Text style={styles.applyText}>Apply</Text>
-  </TouchableOpacity>
-</View>
-
-
-{/* Job 5 */}
-<View style={styles.jobCard}>
-  <View style={styles.jobLogo}>
-    <Text style={styles.jobLogoText}>💻</Text>
-  </View>
-
-  <View style={{ flex: 1 }}>
-    <Text style={styles.jobTitle}>Junior Web Designer</Text>
-    <Text style={styles.jobCompany}>Freelance · Remote</Text>
-    <Text style={styles.jobSalary}>
-      From <Text style={{ fontWeight: '700' }}>$20</Text>/hour
-    </Text>
-
-    <View style={styles.jobTagsRow}>
-      <View style={styles.jobTag}><Text style={styles.jobTagText}>Remote</Text></View>
-      <View style={styles.jobTag}><Text style={styles.jobTagText}>Project-based</Text></View>
-    </View>
-  </View>
-
-  <TouchableOpacity style={styles.applyButton}>
-    <Text style={styles.applyText}>Apply</Text>
-  </TouchableOpacity>
-</View>
-
-
-          <View style={{ height: 80 }} /> {/* 给底部导航留空间 */}
+          <View style={{ height: 80 }} />
         </ScrollView>
 
         {/* 底部导航栏 */}
         <View style={styles.bottomNav}>
           <TouchableOpacity
             style={styles.bottomItem}
-            onPress={() => handleBottomNavPress('Home')}
+            onPress={() => navigation.navigate('MainHome')}
           >
             <Text style={styles.bottomIcon}>⌂</Text>
             <Text style={styles.bottomLabel}>Home</Text>
@@ -268,16 +185,15 @@ export default function MainHomeScreen({ navigation }) {
 
           <TouchableOpacity
             style={styles.bottomItem}
-            onPress={() => handleBottomNavPress('Network')}
+            onPress={() => navigation.navigate('JobList')}
           >
             <Text style={styles.bottomIcon}>◎</Text>
-            <Text style={styles.bottomLabel}>Network</Text>
+            <Text style={styles.bottomLabel}>Jobs</Text>
           </TouchableOpacity>
 
-          {/* 中间加号按钮 */}
           <TouchableOpacity
             style={styles.centerButtonWrapper}
-            onPress={() => handleBottomNavPress('Add')}
+            onPress={() => navigation.navigate('MyApplications')}
           >
             <View style={styles.centerButton}>
               <Text style={styles.centerPlus}>＋</Text>
@@ -286,15 +202,15 @@ export default function MainHomeScreen({ navigation }) {
 
           <TouchableOpacity
             style={styles.bottomItem}
-            onPress={() => handleBottomNavPress('Inbox')}
+            onPress={() => navigation.navigate('MyApplications')}
           >
             <Text style={styles.bottomIcon}>✉</Text>
-            <Text style={styles.bottomLabel}>Inbox</Text>
+            <Text style={styles.bottomLabel}>Applied</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.bottomItem}
-            onPress={() => handleBottomNavPress('Profile')}
+            onPress={() => navigation.navigate('Profile')}
           >
             <Text style={styles.bottomIcon}>☺</Text>
             <Text style={styles.bottomLabel}>Profile</Text>
@@ -375,21 +291,22 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '700',
   },
-  bannerPerson: {
-    width: 80,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  bannerPersonText: {
-    fontSize: 10,
-    color: '#FFFFFF',
-  },
 
   sectionTitle: {
     marginTop: 24,
     fontSize: 16,
     fontWeight: '700',
     color: PRIMARY_DARK,
+  },
+  sectionHeader: {
+    marginTop: 24,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  link: {
+    color: ORANGE,
+    fontWeight: '700',
   },
 
   searchRow: {
@@ -463,68 +380,8 @@ const styles = StyleSheet.create({
     color: '#7B7B8F',
   },
 
-  jobCard: {
-    marginTop: 16,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 24,
-    padding: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  jobLogo: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: '#E5F4EC',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
-  },
-  jobLogoText: {
-    fontSize: 20,
-  },
-  jobTitle: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: PRIMARY_DARK,
-  },
-  jobCompany: {
-    marginTop: 2,
-    fontSize: 12,
-    color: '#7B7B8F',
-  },
-  jobSalary: {
-    marginTop: 4,
-    fontSize: 12,
-    color: '#7B7B8F',
-  },
-  jobTagsRow: {
-    marginTop: 8,
-    flexDirection: 'row',
-  },
-  jobTag: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-    backgroundColor: '#F5F6FA',
-    marginRight: 8,
-  },
-  jobTagText: {
-    fontSize: 11,
-    color: '#7B7B8F',
-  },
-  applyButton: {
-    marginLeft: 8,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 16,
-    backgroundColor: ORANGE,
-  },
-  applyText: {
-    color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: '700',
-  },
+  center: { alignItems: 'center', justifyContent: 'center', paddingVertical: 12 },
+  meta: { fontSize: 13, color: '#7B7B8F', marginTop: 6 },
 
   /* 底部导航栏 */
   bottomNav: {

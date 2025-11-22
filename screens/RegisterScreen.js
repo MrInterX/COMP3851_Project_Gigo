@@ -9,16 +9,49 @@ import {
   SafeAreaView,
   Switch,
 } from 'react-native';
+import { supabase } from '../services/supabaseClient';
+import { upsertProfile } from '../services/userService';
 
 export default function RegisterScreen({ navigation }) {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('forexample@gmail.com');
   const [password, setPassword] = useState('');
   const [remember, setRemember] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleSignUp = () => {
-    // TODO: 之后接 supabase.auth.signUp
-    navigation.navigate('SignupSuccess');
+    if (!email || !password || !fullName) {
+      alert('Please fill all fields');
+      return;
+    }
+
+    setLoading(true);
+    supabase.auth
+      .signUp({
+        email,
+        password,
+        options: { data: { full_name: fullName } },
+      })
+      .then(async ({ data, error }) => {
+        if (error) {
+          alert(error.message);
+          return;
+        }
+
+        if (data?.user) {
+          await upsertProfile({
+            id: data.user.id,
+            full_name: fullName,
+            location: '',
+            about_me: '',
+            skills: '',
+          });
+        }
+
+        navigation.navigate('SignupSuccess');
+      })
+      .catch((err) => alert(err.message))
+      .finally(() => setLoading(false));
   };
 
   return (
@@ -82,7 +115,7 @@ export default function RegisterScreen({ navigation }) {
 
         {/* SIGN UP button */}
         <TouchableOpacity style={styles.loginButton} onPress={handleSignUp}>
-          <Text style={styles.loginButtonText}>SIGN UP</Text>
+          <Text style={styles.loginButtonText}>{loading ? 'SIGNING UP...' : 'SIGN UP'}</Text>
         </TouchableOpacity>
 
         {/* Google Login */}

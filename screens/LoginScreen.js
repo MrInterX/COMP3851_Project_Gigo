@@ -8,14 +8,38 @@ import {
   SafeAreaView,
   Switch,
 } from 'react-native';
+import { supabase } from '../services/supabaseClient';
+import { upsertProfile } from '../services/userService';
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('forexample@gmail.com');
   const [password, setPassword] = useState('');
   const [remember, setRemember] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = () => {
-    console.log('login with', email, password);
+    if (!email || !password) {
+      alert('Please enter email and password');
+      return;
+    }
+    setLoading(true);
+    supabase.auth
+      .signInWithPassword({ email, password })
+      .then(async ({ data, error }) => {
+        if (error) {
+          alert(error.message);
+          return;
+        }
+        if (data?.user) {
+          // 确保 users 表有一条记录
+          await upsertProfile({ id: data.user.id, full_name: data.user.user_metadata?.full_name || '' });
+        }
+        navigation.navigate('Successfully');
+      })
+      .catch((err) => {
+        alert(err.message);
+      })
+      .finally(() => setLoading(false));
   };
 
   const handleGoogleLogin = () => {
@@ -69,9 +93,10 @@ export default function LoginScreen({ navigation }) {
         {/* Login 按钮 */}
         <TouchableOpacity
           style={styles.loginButton}
-          onPress={() => navigation.navigate('Successfully')}
+          onPress={handleLogin}
+          disabled={loading}
         >
-          <Text style={styles.loginButtonText}>LOGIN</Text>
+          <Text style={styles.loginButtonText}>{loading ? 'LOGGING IN...' : 'LOGIN'}</Text>
         </TouchableOpacity>
 
         {/* Google 登录 */}

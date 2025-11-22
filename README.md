@@ -3,7 +3,7 @@
 
 ---
 # 请使用feature/... 命名分支，VSCode可以生成详细的提交信息
-# feature/database中, docs/db-schema.md 是数据库的基本信息; .env.example 是supabase的密钥
+# feature/database中, docs/db-schema.md 是数据库的基本信息; services/supabaseClient.js 是supabase的密钥
 
 ---
 # 📘 目录

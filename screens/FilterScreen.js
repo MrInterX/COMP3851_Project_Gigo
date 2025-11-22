@@ -316,7 +316,12 @@ export default function FilterScreen({ route, navigation }) {
 
         <TouchableOpacity
           style={styles.applyBtn}
-          onPress={() => navigation.navigate("NoResultScreen")}
+          onPress={() =>
+            navigation.navigate("JobList", {
+              category,
+              jobType,
+            })
+          }
         >
           <Text style={styles.applyText}>Apply Now</Text>
         </TouchableOpacity>
