@@ -1,4 +1,4 @@
-直接用最新的: Latest!这个目前可以跑
+直接用最新的主分支这个目前可以跑
 ---
 
 # 📱 Gig Job Placement App
