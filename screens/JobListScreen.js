@@ -15,8 +15,10 @@ import { Ionicons } from "@expo/vector-icons";
 // 推荐搜索关键词
 const hotKeywords = ["Waiter", "Part-time jobs", "Barista", "Kitchen Crew"];
 
-export default function JobListScreen({ navigation }) {
-  const [search, setSearch] = useState("");
+export default function JobListScreen({ navigation, route }) {
+  const initialCategory = route.params?.category;
+  const initialJobType = route.params?.jobType;
+  const initialKeyword = route.params?.keyword || '';
 
   // mock 数据（无数据库也可运行）
   const mockJobs = [

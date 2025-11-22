@@ -1,8 +1,17 @@
+# 测试的账户/密码：
+默认的测试账户 - 邮箱：test@test.com / 密码：123456
+每个人也都有一个账户 - 邮箱：姓（小写）@test.com  （例如：li@test.com）/ 密码：123456
+也可以用自己的邮箱注册，能收到验证邮件，只是还不能验证。
+# 整合开发进度的时候，在保证功能的前提下，ai可能对一些UI做了改动，这个很难控制。所以请大家拉取integration，新建分支再做修改和进一步开发。
+# UI元素/图标/图片等，请从Figma下载对应的UI元素，Figma导出选项可选PNG/SVG格式。
+# 请使用feature/... 命名分支，VSCode可以生成详细的提交信息。
+# docs/db-schema.md 是数据库的基本信息；.env.example 是supabase的链接和密钥（放在项目根目录然后删掉.example）
+---
+
 # 📱 Gig Job Placement App
 一个使用 **React Native（Expo）+ Supabase** 开发的跨平台零工兼职匹配移动应用。  
 
 ---
-
 # 📘 目录
 1. [项目简介](#项目简介)  
 2. [核心功能](#核心功能)  

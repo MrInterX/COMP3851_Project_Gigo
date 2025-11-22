@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -6,78 +6,41 @@ import {
   SafeAreaView,
   TouchableOpacity,
   Image,
-  TextInput,
 } from 'react-native';
 
 const PRIMARY = '#120042';
 const PRIMARY_DARK = '#1B0258';
 
 export default function CheckEmailScreen({ navigation }) {
-  const [resetPassword, setResetPassword] = useState('');
-
-  const handleConfirm = () => {
-    if (!resetPassword) {
-      alert('Please enter your new password');
-      return;
-    }
-
-
-    navigation.navigate('Successfully'); 
-
-  };
-
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.card}>
-
-        {/* 标题 */}
         <Text style={styles.title}>Check Your Email</Text>
 
-        {/* 说明文字 */}
         <Text style={styles.subtitle}>
-          We have sent the reset password to your email address
+          We have sent a reset link to your email address.{'\n'}
+          Please follow the link to choose a new password.
         </Text>
 
-        {/* 插图 */}
         <Image
           source={require('../assets/images/check.png')}
           style={styles.image}
           resizeMode="contain"
         />
 
-        {/* 输入框：请输入新的 reset 密码 */}
-        <View style={styles.fieldGroup}>
-          <TextInput
-            style={styles.input}
-            value={resetPassword}
-            onChangeText={setResetPassword}
-            placeholder="Enter your reset password"
-            placeholderTextColor="#C0C0D2"
-            secureTextEntry
-          />
-        </View>
-
-        {/* 确认按钮 */}
-        <TouchableOpacity style={styles.confirmButton} onPress={handleConfirm}>
-          <Text style={styles.confirmText}>CONFIRM</Text>
-        </TouchableOpacity>
-
-        {/* 返回登录 */}
         <TouchableOpacity
-          style={styles.backButton}
+          style={styles.confirmButton}
           onPress={() => navigation.navigate('Login')}
         >
-          <Text style={styles.backText}>BACK TO LOGIN</Text>
+          <Text style={styles.confirmText}>BACK TO LOGIN</Text>
         </TouchableOpacity>
 
-        {/* Resend row */}
         <View style={styles.resendRow}>
-          <Text style={styles.resendText}>You have not received the email? </Text>
-          <TouchableOpacity>
+          <Text style={styles.resendText}>Didn&apos;t receive the email? </Text>
+          <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
             <Text style={styles.resendLink}>Resend</Text>
           </TouchableOpacity>
         </View>
-
       </View>
     </SafeAreaView>
   );
@@ -115,24 +78,6 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 10,
   },
-
-  fieldGroup: {
-    marginTop: 20,
-  },
-  label: {
-    fontSize: 13,
-    color: PRIMARY,
-    marginBottom: 8,
-  },
-  input: {
-    height: 46,
-    borderRadius: 16,
-    backgroundColor: '#F5F6FA',
-    paddingHorizontal: 16,
-    fontSize: 14,
-    color: PRIMARY_DARK,
-  },
-
   confirmButton: {
     marginTop: 24,
     height: 48,
@@ -146,21 +91,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '700',
   },
-
-  backButton: {
-    marginTop: 12,
-    height: 48,
-    borderRadius: 16,
-    backgroundColor: '#ECE6FF',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  backText: {
-    color: PRIMARY_DARK,
-    fontSize: 15,
-    fontWeight: '700',
-  },
-
   resendRow: {
     marginTop: 16,
     flexDirection: 'row',
