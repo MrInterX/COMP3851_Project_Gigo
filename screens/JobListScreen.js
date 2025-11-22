@@ -1,108 +1,169 @@
-// screens/JobListScreen.js
-import React, { useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
-import SearchBar from '../components/SearchBar';
-import FilterButton from '../components/FilterButton';
-import JobCard from '../components/JobCard';
-import { Ionicons } from '@expo/vector-icons';
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  TouchableOpacity,
+  SafeAreaView,
+} from "react-native";
+
+import SearchBar from "../components/SearchBar";
+import JobCard from "../components/JobCard";
+import { Ionicons } from "@expo/vector-icons";
+
+// 推荐搜索关键词
+const hotKeywords = ["Waiter", "Part-time jobs", "Barista", "Kitchen Crew"];
 
 export default function JobListScreen({ navigation }) {
   const [search, setSearch] = useState("");
 
-  // 🟦 临时数据（让页面能跑）
-  const jobs = [
+  // mock 数据（无数据库也可运行）
+  const mockJobs = [
     {
       id: 1,
-      title: "Part-Time Service Crew",
-      company: "Starbucks",
-      location: "Bugis, Singapore",
-      type: "Part-time",
-      salary: "$12 / Hour",
-      icon: "cafe-outline",
+      title: "Waiter",
+      company: "Marina Bay Sands",
+      location: "Singapore",
+      job_type: "Full time",
+      salary_min: 18000,
+      salary_max: 23000,
     },
     {
       id: 2,
-      title: "Warehouse Assistant",
-      company: "Lazada",
-      location: "Malaysia",
-      type: "Full-time",
-      salary: "$2000 / Month",
-      icon: "cube-outline",
+      title: "Kitchen Crew",
+      company: "Jollibee",
+      location: "Singapore",
+      job_type: "Part time",
+      salary_min: 12000,
+      salary_max: 15000,
     },
+
+      {
+    id: 3,
+    title: "Part-Time Service Crew",
+    company: "Starbucks",
+    location: "Bugis, Singapore",
+    job_type: "Part time",
+    salary_min: 12000,
+    salary_max: 16000,
+  },
+  {
+    id: 4,
+    title: "Retail Assistant",
+    company: "UNIQLO",
+    location: "Tampines",
+    job_type: "Full time",
+    salary_min: 18000,
+    salary_max: 22000,
+  },
+  {
+    id: 5,
+    title: "Warehouse Packer",
+    company: "Shopee",
+    location: "Changi",
+    job_type: "Shift",
+    salary_min: 14000,
+    salary_max: 20000,
+  },
+
   ];
 
+  const filteredJobs = mockJobs.filter((job) =>
+    job.title.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
-    <ScrollView style={styles.container}>
-      {/* 🔍 Search Row */}
-      <View style={styles.searchRow}>
-        <SearchBar
-          value={search}
-          onChangeText={setSearch}
-          placeholder="Search job title or keywords"
-          style={{ flex: 1 }}
-        />
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
+      <View style={{ flex: 1 }}>
+        {/* 顶部搜索栏 */}
+        <View style={styles.searchRow}>
+          <SearchBar
+            value={search}
+            onChangeText={setSearch}
+            placeholder="Search job title or keywords"
+            style={{ flex: 1 }}
+          />
 
-        <TouchableOpacity onPress={() => navigation.navigate('Filter')}>
-          <Ionicons name="options-outline" size={28} color="#4B3F72" />
-        </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate("Filter")}>
+            <Ionicons name="options-outline" size={28} color="#150B3D" />
+          </TouchableOpacity>
+        </View>
+
+        {/* 推荐搜索 */}
+        <Text style={styles.hotTitle}>Recommended searches</Text>
+        <View style={styles.hotRow}>
+          {hotKeywords.map((keyword, index) => (
+            <TouchableOpacity
+              key={index}
+              style={styles.hotTag}
+              onPress={() => setSearch(keyword)}
+            >
+              <Text style={styles.hotText}>{keyword}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* 职位列表 */}
+        <View style={{ flex: 1 }}>
+          <FlatList
+            data={filteredJobs}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({ item }) => (
+              <JobCard
+                title={item.title}
+                company={item.company}
+                location={item.location}
+                type={item.job_type}
+                salary={`$${item.salary_min / 1000}k - $${item.salary_max / 1000}k`}
+                icon="briefcase-outline"
+                onPress={() => navigation.navigate("JobDetail", { jobId: item.id })}
+              />
+            )}
+            ListEmptyComponent={
+              <Text style={{ textAlign: "center", marginTop: 40, color: "#999" }}>
+                No jobs found
+              </Text>
+            }
+            contentContainerStyle={{ paddingBottom: 120 }}
+          />
+        </View>
       </View>
-
-      {/* 🔥 Title */}
-      <Text style={styles.sectionTitle}>Recommended Jobs</Text>
-
-      {/* 📌 Job Cards */}
-      {jobs.map((job) => (
-        <JobCard
-          key={job.id}
-          title={job.title}
-          company={job.company}
-          location={job.location}
-          type={job.type}
-          salary={job.salary}
-          icon={job.icon}
-          onPress={() => navigation.navigate("Search")} // 示例跳转
-        />
-      ))}
-
-      {/* 🔗 Specialization 跳转 */}
-      <TouchableOpacity
-        style={styles.specialButton}
-        onPress={() => navigation.navigate("Specialization")}
-      >
-        <Text style={styles.specialText}>Explore Specializations →</Text>
-      </TouchableOpacity>
-
-    </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 18,
-    backgroundColor: '#FFFFFF',
-  },
   searchRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 14,
-    marginBottom: 20,
-  },
-  sectionTitle: {
-    fontSize: 22,
-    fontWeight: "700",
     marginBottom: 16,
+    paddingHorizontal: 18,
+    marginTop: 10,
   },
-  specialButton: {
-    marginTop: 20,
-    paddingVertical: 14,
-    backgroundColor: "#F5F0FF",
-    borderRadius: 12,
-  },
-  specialText: {
-    textAlign: "center",
-    color: "#4B3F72",
+  hotTitle: {
     fontSize: 16,
+    fontWeight: "700",
+    marginBottom: 10,
+    paddingHorizontal: 18,
+    color: "#150B3D",
+  },
+  hotRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
+    marginBottom: 16,
+    paddingHorizontal: 18,
+  },
+  hotTag: {
+    backgroundColor: "#F4F4F4",
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 14,
+  },
+  hotText: {
+    color: "#150B3D",
     fontWeight: "600",
-  }
+  },
 });
