@@ -1,6 +1,4 @@
-# 周五在feature/database中提交的代码和supabase密钥发现有问题，请大家注意，以分支integration为准。
-# 在新建的分支integration，整合了目前所有的开发分支。我提交了PR，也给ai做了代码审查。大家简单测试一下现有功能，测试通过请在PR下评论，如果大家全部测试通过，我就合并到main。
-
+直接用最新的: Latest!这个目前可以跑
 ---
 
 # 📱 Gig Job Placement App
