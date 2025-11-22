@@ -1,9 +1,10 @@
-# 📱 Gig Job Placement App
-一个使用 **React Native（Expo）+ Supabase** 开发的跨平台零工兼职匹配移动应用。  
+# 周五在feature/database中提交的代码和supabase密钥发现有问题，请大家注意，以分支integration为准。
+# 在新建的分支integration，整合了目前所有的开发分支。我提交了PR，也给ai做了代码审查。大家简单测试一下现有功能，测试通过请在PR下评论，如果大家全部测试通过，我就合并到main。
 
 ---
-# 请使用feature/... 命名分支，VSCode可以生成详细的提交信息
-# feature/database中, docs/db-schema.md 是数据库的基本信息; .env.example 是supabase的密钥
+
+# 📱 Gig Job Placement App
+一个使用 **React Native（Expo）+ Supabase** 开发的跨平台零工兼职匹配移动应用。  
 
 ---
 # 📘 目录
