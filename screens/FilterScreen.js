@@ -20,21 +20,22 @@ const SUB_CATEGORIES = {
   Logistics: ["Driver", "Warehouse", "Inventory"],
   Education: ["Tutor", "Teacher", "Assistant"],
 };
+const UNLIMITED_LABEL = "Any";
+const ANY_TIME_LABEL = "Any time";
+const sanitizeUnlimited = (value) =>
+  value === UNLIMITED_LABEL ? null : value;
 
 export default function FilterScreen({ route, navigation }) {
   const category = route.params?.category || "Design";
 
-  // 原本的过滤
   const [subCategory, setSubCategory] = useState(SUB_CATEGORIES[category][0]);
   const [salaryMin, setSalaryMin] = useState(13);
   const [salaryMax, setSalaryMax] = useState(25);
-  const [jobType, setJobType] = useState("");
-
-  // 新增过滤项
-  const [positionLevel, setPositionLevel] = useState("Senior");
-  const [lastUpdate, setLastUpdate] = useState("Any time");
-  const [workplaceType, setWorkplaceType] = useState("On-site");
-  const [experience, setExperience] = useState("5–10 years");
+  const [jobType, setJobType] = useState(UNLIMITED_LABEL);
+  const [positionLevel, setPositionLevel] = useState(UNLIMITED_LABEL);
+  const [lastUpdate, setLastUpdate] = useState(ANY_TIME_LABEL);
+  const [workplaceType, setWorkplaceType] = useState(UNLIMITED_LABEL);
+  const [experience, setExperience] = useState(UNLIMITED_LABEL);
 
   // 控制折叠
   const [showSubList, setShowSubList] = useState(false);
@@ -47,11 +48,25 @@ export default function FilterScreen({ route, navigation }) {
     setSubCategory(SUB_CATEGORIES[category][0]);
     setSalaryMin(13);
     setSalaryMax(25);
-    setJobType("");
-    setPositionLevel("Senior");
-    setLastUpdate("Any time");
-    setWorkplaceType("On-site");
-    setExperience("5–10 years");
+    setJobType(UNLIMITED_LABEL);
+    setPositionLevel(UNLIMITED_LABEL);
+    setLastUpdate(ANY_TIME_LABEL);
+    setWorkplaceType(UNLIMITED_LABEL);
+    setExperience(UNLIMITED_LABEL);
+  };
+
+  const handleApplyFilters = () => {
+    navigation.navigate("JobList", {
+      category,
+      subCategory,
+      salaryMin,
+      salaryMax,
+      jobType: sanitizeUnlimited(jobType),
+      workplaceType: sanitizeUnlimited(workplaceType),
+      experience: sanitizeUnlimited(experience),
+      lastUpdate: lastUpdate === ANY_TIME_LABEL ? null : lastUpdate,
+      location: "Singapore",
+    });
   };
 
   return (
@@ -138,27 +153,37 @@ export default function FilterScreen({ route, navigation }) {
 
         {/* Job Type */}
         <Text style={styles.label}>Job Type</Text>
-        <View style={styles.jobTypeRow}>
-          {["Full time", "Part time", "Remote"].map((type) => (
-            <TouchableOpacity
-              key={type}
-              style={[styles.jobTypeBtn, jobType === type && styles.jobTypeBtnActive]}
-              onPress={() => setJobType(type)}
-            >
-              <Text
-                style={[
-                  styles.jobTypeText,
-                  jobType === type && styles.jobTypeTextActive,
-                ]}
-              >
-                {type}
-              </Text>
-            </TouchableOpacity>
-          ))}
+        <View style={styles.jobTypeScroll}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.jobTypeRow}
+          >
+            {["Full time", "Part time", "Contract", UNLIMITED_LABEL].map(
+              (type) => (
+                <TouchableOpacity
+                  key={type}
+                  style={[
+                    styles.jobTypeBtn,
+                    jobType === type && styles.jobTypeBtnActive,
+                  ]}
+                  onPress={() => setJobType(type)}
+                >
+                  <Text
+                    style={[
+                      styles.jobTypeText,
+                      jobType === type && styles.jobTypeTextActive,
+                    ]}
+                  >
+                    {type}
+                  </Text>
+                </TouchableOpacity>
+              )
+            )}
+          </ScrollView>
         </View>
 
-        {/* ---------------------------- */}
-        {/* NEW: Position Level */}
+        {/* Position Level — 前端自定义，数据库无此字段，保持但不传给 API */}
         <Text style={styles.label}>Position level</Text>
         <TouchableOpacity style={styles.inputBox} onPress={() => setShowPosition(!showPosition)}>
           <Text style={styles.inputText}>{positionLevel}</Text>
@@ -172,7 +197,7 @@ export default function FilterScreen({ route, navigation }) {
 
         {showPosition && (
           <View style={styles.subList}>
-            {["Junior", "Senior", "Leader", "Manager"].map((item) => (
+            {[UNLIMITED_LABEL, "Junior", "Senior", "Leader", "Manager"].map((item) => (
               <TouchableOpacity
                 key={item}
                 style={[styles.levelBtn, positionLevel === item && styles.levelBtnActive]}
@@ -194,8 +219,7 @@ export default function FilterScreen({ route, navigation }) {
           </View>
         )}
 
-        {/* ---------------------------- */}
-        {/* NEW: Last Update */}
+        {/* Last Update */}
         <Text style={styles.label}>Last update</Text>
         <TouchableOpacity style={styles.inputBox} onPress={() => setShowLastUpdate(!showLastUpdate)}>
           <Text style={styles.inputText}>{lastUpdate}</Text>
@@ -229,8 +253,7 @@ export default function FilterScreen({ route, navigation }) {
           </View>
         )}
 
-        {/* ---------------------------- */}
-        {/* NEW: Type of Workplace */}
+        {/* Type of Workplace */}
         <Text style={styles.label}>Type of workplace</Text>
         <TouchableOpacity style={styles.inputBox} onPress={() => setShowWorkplace(!showWorkplace)}>
           <Text style={styles.inputText}>{workplaceType}</Text>
@@ -244,7 +267,7 @@ export default function FilterScreen({ route, navigation }) {
 
         {showWorkplace && (
           <View style={styles.radioContainer}>
-            {["On-site", "Hybrid", "Remote"].map((item) => (
+            {[UNLIMITED_LABEL, "On-site", "Hybrid", "Remote"].map((item) => (
               <TouchableOpacity
                 key={item}
                 style={styles.radioRow}
@@ -264,8 +287,7 @@ export default function FilterScreen({ route, navigation }) {
           </View>
         )}
 
-        {/* ---------------------------- */}
-        {/* NEW: Experience */}
+        {/* Experience */}
         <Text style={styles.label}>Experience</Text>
         <TouchableOpacity style={styles.inputBox} onPress={() => setShowExperience(!showExperience)}>
           <Text style={styles.inputText}>{experience}</Text>
@@ -280,6 +302,7 @@ export default function FilterScreen({ route, navigation }) {
         {showExperience && (
           <View style={styles.radioContainer}>
             {[
+              UNLIMITED_LABEL,
               "No experience",
               "Less than a year",
               "1–3 years",
@@ -308,7 +331,7 @@ export default function FilterScreen({ route, navigation }) {
 
       </ScrollView>
 
-      {/* 固定底部按钮 */}
+      {/* Bottom Buttons */}
       <View style={styles.btnRow}>
         <TouchableOpacity style={styles.resetBtn} onPress={resetFilters}>
           <Text style={styles.resetText}>Reset</Text>
@@ -316,12 +339,7 @@ export default function FilterScreen({ route, navigation }) {
 
         <TouchableOpacity
           style={styles.applyBtn}
-          onPress={() =>
-            navigation.navigate("JobList", {
-              category,
-              jobType,
-            })
-          }
+          onPress={handleApplyFilters}
         >
           <Text style={styles.applyText}>Apply Now</Text>
         </TouchableOpacity>
@@ -391,15 +409,16 @@ const styles = StyleSheet.create({
   },
   salaryText: { color: "#150B3D", fontWeight: "700", fontSize: 16 },
 
+  jobTypeScroll: { marginTop: 12 },
   jobTypeRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 12,
+    columnGap: 12,
+    paddingRight: 12,
   },
   jobTypeBtn: {
-    width: "31%",
     paddingVertical: 12,
-    borderRadius: 10,
+    paddingHorizontal: 18,
+    borderRadius: 16,
     backgroundColor: "#F4EFEA",
     alignItems: "center",
   },
