@@ -1,4 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+} from "react";
 import {
   View,
   Text,
@@ -12,85 +17,125 @@ import {
 import SearchBar from "../components/SearchBar";
 import JobCard from "../components/JobCard";
 import { Ionicons } from "@expo/vector-icons";
-import { supabase } from "../services/supabaseClient";
+import { getJobsWithFilters } from "../services/jobService";
 
-// 推荐词
 const hotKeywords = ["Waiter", "Part-time jobs", "Barista", "Kitchen Crew"];
 
-export default function JobListScreen({ navigation }) {
+export default function JobListScreen({ navigation, route }) {
+  const routeParams = route?.params ?? null;
+
+  const normalizedFilters = useMemo(() => {
+    const raw = routeParams ?? {};
+    const sanitize = (value) =>
+      value && value !== "Any" ? value : "";
+    return {
+      category: raw.category || "",
+      subCategory: raw.subCategory || "",
+      jobType: sanitize(raw.jobType),
+      workplaceType: sanitize(raw.workplaceType),
+      experience: sanitize(raw.experience),
+      location: raw.location || "",
+      salaryMin:
+        typeof raw.salaryMin === "number" ? raw.salaryMin : null,
+      salaryMax:
+        typeof raw.salaryMax === "number" ? raw.salaryMax : null,
+      lastUpdate: raw.lastUpdate || "",
+    };
+  }, [routeParams]);
+
+  const hasFilters = useMemo(
+    () => Boolean(routeParams && Object.keys(routeParams).length),
+    [routeParams]
+  );
+
   const [jobs, setJobs] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
 
-  // 🟦 读取 Supabase jobs 表
-  const fetchJobs = async () => {
+  const fetchJobs = useCallback(async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("jobs")
-      .select("*")
-      .order("posted_at", { ascending: false });
-
-    if (error) {
-      console.log("❌ Fetch jobs error:", error);
-    } else {
-      setJobs(data);
+    try {
+      const data = await getJobsWithFilters({
+        search,
+        ...normalizedFilters,
+      });
+      setJobs(data || []);
+    } catch (error) {
+      console.error("Failed to load jobs with filters", error);
+      setJobs([]);
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
-  };
+  }, [search, normalizedFilters]);
 
   useEffect(() => {
     fetchJobs();
-  }, []);
+  }, [fetchJobs]);
 
-  // 🟦 搜索过滤（title / company / location）
-  const filteredJobs = jobs.filter((job) =>
-    job.title.toLowerCase().includes(search.toLowerCase()) ||
-    job.company.toLowerCase().includes(search.toLowerCase()) ||
-    job.location.toLowerCase().includes(search.toLowerCase())
-  );
+  // -------- HANDLE SUBMIT SEARCH ----------
+  const handleSubmitSearch = (event) => {
+    const text = event.nativeEvent.text;
+    setSearch(text);
+  };
+
+  // -------- HOT KEYWORD PRESS ----------
+  const handleHotKeywordPress = (keyword) => {
+    setSearch(keyword);
+  };
+
+  // -------- CHECK FOR NO RESULTS & NAVIGATE ----------
+  useEffect(() => {
+    if (!loading && hasFilters && jobs.length === 0) {
+      navigation.replace("NoResultScreen");
+    }
+  }, [loading, hasFilters, jobs.length, navigation]);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
       <View style={{ flex: 1 }}>
-        {/* 顶部搜索栏 */}
+
+        {/* SEARCH BAR */}
         <View style={styles.searchRow}>
           <SearchBar
             value={search}
             onChangeText={setSearch}
             placeholder="Search job title or keywords"
-            style={{ flex: 1 }}
+            returnKeyType="search"
+            onSubmitEditing={handleSubmitSearch}
           />
-          <TouchableOpacity
-            onPress={() => navigation.navigate("Filter")}
-          >
+
+          <TouchableOpacity onPress={() => navigation.navigate("Filter")}>
             <Ionicons name="options-outline" size={28} color="#150B3D" />
           </TouchableOpacity>
         </View>
 
-        {/* 推荐搜索 */}
+        {/* HOT KEYWORDS */}
         <Text style={styles.hotTitle}>Recommended searches</Text>
         <View style={styles.hotRow}>
           {hotKeywords.map((keyword, index) => (
             <TouchableOpacity
               key={index}
               style={styles.hotTag}
-              onPress={() => setSearch(keyword)}
+              onPress={() => handleHotKeywordPress(keyword)}
             >
               <Text style={styles.hotText}>{keyword}</Text>
             </TouchableOpacity>
           ))}
         </View>
 
-        {/* 数据加载中 */}
+        {/* LOADING */}
         {loading && (
-          <ActivityIndicator size="large" color="#150B3D" style={{ marginTop: 20 }} />
+          <ActivityIndicator
+            size="large"
+            color="#150B3D"
+            style={{ marginTop: 20 }}
+          />
         )}
 
-        {/* 职位列表 */}
+        {/* LIST */}
         {!loading && (
           <FlatList
-            data={filteredJobs}
+            data={jobs}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
               <JobCard
@@ -105,12 +150,10 @@ export default function JobListScreen({ navigation }) {
                 }
               />
             )}
-            ListEmptyComponent={
-              <Text style={{ textAlign: "center", marginTop: 40, color: "#999" }}>
-                No jobs found
-              </Text>
-            }
-            contentContainerStyle={{ paddingBottom: 120, marginTop: 10 }}
+            contentContainerStyle={{
+              paddingBottom: 120,
+              marginTop: 10,
+            }}
           />
         )}
       </View>

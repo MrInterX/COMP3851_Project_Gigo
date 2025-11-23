@@ -8,6 +8,8 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
+  Dimensions,
+  Image,
 } from 'react-native';
 import JobCard from '../components/JobCard';
 import { getJobs } from '../services/jobService';
@@ -15,10 +17,15 @@ import { getJobs } from '../services/jobService';
 const PRIMARY = '#120042';
 const PRIMARY_DARK = '#1B0258';
 const ORANGE = '#FF8A00';
+const SOFT_WHITE = '#F8F6FF';
+const BANNER_SPACING = 12;
+const BANNER_WIDTH = Dimensions.get('window').width - 32;
+const BANNER_SNAP = BANNER_WIDTH + BANNER_SPACING;
 
 export default function MainHomeScreen({ navigation }) {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [activeBanner, setActiveBanner] = useState(0);
 
   useEffect(() => {
     loadJobs();
@@ -35,6 +42,22 @@ export default function MainHomeScreen({ navigation }) {
       setLoading(false);
     }
   }
+
+  const handleBrowseRandomJob = () => {
+    if (jobs.length) {
+      const randomJob = jobs[Math.floor(Math.random() * jobs.length)];
+      navigation.navigate('JobDetail', { jobId: randomJob.id });
+    } else {
+      navigation.navigate('JobList');
+    }
+  };
+
+  const handleBannerMomentum = (event) => {
+    const index = Math.round(
+      event.nativeEvent.contentOffset.x / BANNER_SNAP
+    );
+    setActiveBanner(index);
+  };
 
   const renderJobs = () => {
     if (loading) {
@@ -56,7 +79,7 @@ export default function MainHomeScreen({ navigation }) {
 
     return jobs.map((job) => {
       const salaryText = job.salary_min
-        ? `From $${job.salary_min} / ${job.salary_unit || 'hour'}`
+        ? `$${job.salary_min} / ${job.salary_unit || 'hour'}`
         : 'Salary not provided';
 
       return (
@@ -65,8 +88,9 @@ export default function MainHomeScreen({ navigation }) {
           title={job.title}
           company={job.company}
           location={job.location}
-          jobType={job.job_type}
-          salaryText={salaryText}
+          type={job.job_type}
+          salary={salaryText}
+          icon="briefcase-outline"
           onPress={() => navigation.navigate('JobDetail', { jobId: job.id })}
         />
       );
@@ -96,14 +120,64 @@ export default function MainHomeScreen({ navigation }) {
           </View>
 
           {/* Banner 区域 */}
-          <View style={styles.banner}>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.bannerTitle}>
-                Find smarter gigs{'\n'}tailored for you
-              </Text>
-              <TouchableOpacity style={styles.bannerButton} onPress={() => navigation.navigate('JobList')}>
-                <Text style={styles.bannerButtonText}>Browse Jobs</Text>
+          <View style={styles.bannerCarousel}>
+            <ScrollView
+              horizontal
+              pagingEnabled
+              decelerationRate="fast"
+              showsHorizontalScrollIndicator={false}
+              snapToInterval={BANNER_SNAP}
+              contentContainerStyle={styles.bannerScrollContent}
+              onMomentumScrollEnd={handleBannerMomentum}
+            >
+              <View style={[styles.bannerPrimaryCard, { width: BANNER_WIDTH }]}>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.bannerTitle}>
+                    Find smarter gigs{'\n'}tailored for you
+                  </Text>
+
+                  <TouchableOpacity
+                    style={styles.bannerButton}
+                    onPress={handleBrowseRandomJob}
+                  >
+                    <Text style={styles.bannerButtonText}>Browse Jobs</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              <TouchableOpacity
+                activeOpacity={0.9}
+                style={[
+                  styles.bannerCard,
+                  styles.bannerAdCard,
+                  { width: BANNER_WIDTH },
+                ]}
+                onPress={() => navigation.navigate('CoursePromo')}
+              >
+                <View style={styles.bannerAdContent}>
+                  <Text style={styles.bannerAdTitle}>50% off</Text>
+                  <Text style={styles.bannerAdSubtitle}>take any courses</Text>
+                  <View style={styles.bannerAdButton}>
+                    <Text style={styles.bannerAdButtonText}>Join Now</Text>
+                  </View>
+                </View>
+                <Image
+                  source={require('../assets/images/coursePromoWoman.png')}
+                  style={styles.bannerAdImage}
+                />
               </TouchableOpacity>
+            </ScrollView>
+
+            <View style={styles.bannerDots}>
+              {[0, 1].map((index) => (
+                <View
+                  key={index}
+                  style={[
+                    styles.bannerDot,
+                    activeBanner === index && styles.bannerDotActive,
+                  ]}
+                />
+              ))}
             </View>
           </View>
 
@@ -131,7 +205,11 @@ export default function MainHomeScreen({ navigation }) {
           {/* 统计卡片（改成按钮） */}
           <View style={styles.statsRow}>
             <TouchableOpacity
-              style={[styles.statCard, { backgroundColor: '#E4F4FF' }]}
+              style={[
+                styles.statCard,
+                styles.statCardLarge,
+                { backgroundColor: '#E4F4FF' },
+              ]}
               onPress={() => navigation.navigate('JobList', { jobType: 'Remote' })}
               activeOpacity={0.8}
             >
@@ -141,7 +219,11 @@ export default function MainHomeScreen({ navigation }) {
 
             <View style={styles.statsColRight}>
               <TouchableOpacity
-                style={[styles.statCardSmall, { backgroundColor: '#E5DEFF' }]}
+                style={[
+                  styles.statCardSmall,
+                  styles.statCardSmallSpacer,
+                  { backgroundColor: '#E5DEFF' },
+                ]}
                 onPress={() => navigation.navigate('JobList', { jobType: 'Full-time' })}
                 activeOpacity={0.8}
               >
@@ -168,7 +250,7 @@ export default function MainHomeScreen({ navigation }) {
             </TouchableOpacity>
           </View>
 
-          {renderJobs()}
+          <View style={styles.jobsWrapper}>{renderJobs()}</View>
 
           <View style={{ height: 80 }} />
         </ScrollView>
@@ -264,36 +346,120 @@ const styles = StyleSheet.create({
     color: PRIMARY_DARK,
   },
 
-  banner: {
+  bannerCarousel: {
     marginTop: 20,
-    borderRadius: 24,
-    backgroundColor: PRIMARY_DARK,
-    padding: 18,
-    flexDirection: 'row',
   },
-  bannerTitle: {
-    fontSize: 18,
-    fontWeight: '700',
+  bannerScrollContent: {
+    paddingRight: BANNER_SPACING,
+  },
+  bannerPrimaryCard: {
+    marginRight: BANNER_SPACING,
+    borderRadius: 28,
+    paddingVertical: 24,
+    paddingHorizontal: 22,
+    backgroundColor: '#1B0A69',
+    flexDirection: 'row',
+    shadowColor: '#1B0A69',
+    shadowOpacity: 0.25,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 10,
+  },
+  bannerCard: {
+    marginRight: BANNER_SPACING,
+    borderRadius: 24,
+    padding: 18,
+  },
+  bannerAdCard: {
+    backgroundColor: '#1E0A73',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingLeft: 20,
+    paddingRight: 28,
+    borderRadius: 28,
+    shadowColor: '#0F043F',
+    shadowOpacity: 0.25,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 9,
+  },
+  bannerAdContent: {
+    flex: 1,
+  },
+  bannerAdTitle: {
+    fontSize: 30,
+    fontWeight: '800',
     color: '#FFFFFF',
   },
+  bannerAdSubtitle: {
+    marginTop: 8,
+    fontSize: 16,
+    color: '#E6E0FF',
+  },
+  bannerAdButton: {
+    marginTop: 18,
+    paddingHorizontal: 22,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: ORANGE,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  bannerAdButtonText: {
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  bannerAdImage: {
+    width: 120,
+    height: 150,
+    marginLeft: 18,
+    resizeMode: 'contain',
+  },
+  bannerDots: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 12,
+  },
+  bannerDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginHorizontal: 4,
+    backgroundColor: '#C2B5E4',
+  },
+  bannerDotActive: {
+    backgroundColor: '#FFFFFF',
+  },
+  bannerTitle: {
+    fontSize: 24,
+    lineHeight: 32,
+    fontWeight: '800',
+    color: SOFT_WHITE,
+  },
   bannerButton: {
-    marginTop: 16,
-    paddingHorizontal: 16,
-    height: 36,
-    borderRadius: 18,
+    marginTop: 18,
+    paddingVertical: 12,
+    paddingHorizontal: 26,
+    borderRadius: 24,
     backgroundColor: ORANGE,
     alignItems: 'center',
     justifyContent: 'center',
     alignSelf: 'flex-start',
+    shadowColor: '#FF8A00',
+    shadowOpacity: 0.35,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 8,
   },
   bannerButtonText: {
     color: '#FFFFFF',
-    fontSize: 13,
+    fontSize: 16,
     fontWeight: '700',
   },
 
   sectionTitle: {
-    marginTop: 24,
+    marginTop: 0,
     fontSize: 16,
     fontWeight: '700',
     color: PRIMARY_DARK,
@@ -303,6 +469,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  jobsWrapper: {
+    marginTop: 0,
   },
   link: {
     color: ORANGE,
@@ -350,14 +519,21 @@ const styles = StyleSheet.create({
     padding: 16,
     justifyContent: 'center',
   },
+  statCardLarge: {
+    flex: 1.2,
+    minHeight: 120,
+  },
   statsColRight: {
-    flex: 1,
-    marginLeft: 12,
+    flex: 0.9,
+    marginLeft: 18,
     justifyContent: 'space-between',
   },
   statCardSmall: {
     borderRadius: 20,
     padding: 12,
+  },
+  statCardSmallSpacer: {
+    marginBottom: 16,
   },
   statNumber: {
     fontSize: 20,

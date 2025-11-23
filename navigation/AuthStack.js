@@ -22,6 +22,7 @@ import NoResultScreen from '../screens/NoResultScreen';
 import JobDetailScreen from '../screens/JobDetailScreen';
 import MyApplicationsScreen from '../screens/MyApplicationsScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+import CoursePromoScreen from '../screens/CoursePromoScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -49,6 +50,7 @@ export default function AuthStack() {
       <Stack.Screen name="JobDetail" component={JobDetailScreen} />
       <Stack.Screen name="MyApplications" component={MyApplicationsScreen} />
       <Stack.Screen name="Profile" component={ProfileScreen} />
+      <Stack.Screen name="CoursePromo" component={CoursePromoScreen} />
     </Stack.Navigator>
   );
 }
