@@ -29,25 +29,32 @@
 
 **用途**：职位数据源，用于 JobList、JobDetail、Filter（基础筛选）、Saved Jobs 页面展示。
 
-| Field        | Type        | Required | Default           | Description                     |
-| ------------ | ----------- | -------- | ----------------- | ------------------------------- |
-| id           | uuid        | Yes (PK) | gen_random_uuid() | 职位主键                        |
-| title        | text        | Yes      | -                 | 职位名称                        |
-| company      | text        | Yes      | -                 | 公司/雇主名称                   |
-| location     | text        | Yes      | -                 | 工作地点（文本）                |
-| category     | text        | Yes      | -                 | 行业分类（一级筛选）            |
-| job_type     | text        | Yes      | -                 | 职位类型（Part-time/Full-time） |
-| salary_min   | numeric     | Yes      | -                 | 最低薪资                        |
-| salary_unit  | text        | Yes      | -                 | 薪资单位（hour/month）          |
-| posted_at    | timestamptz | Yes      | now()             | 发布时间                        |
-| description  | text        | Yes      | -                 | 职位描述                        |
-| requirements | text        | No       | -                 | 任职要求（多行/列表文本）       |
-| logo_url     | text        | No       | -                 | 公司 logo 图片 URL（可空）      |
+| Field           | Type        | Required | Default           | Description                              |
+| ---------------| ----------- | -------- | ----------------- | ---------------------------------------- |
+| id             | uuid        | Yes (PK) | gen_random_uuid() | 职位主键                                 |
+| title          | text        | Yes      | -                 | 职位名称                                 |
+| company        | text        | Yes      | -                 | 公司/雇主名称                            |
+| location       | text        | Yes      | -                 | 工作地点（城市/区域文本）                |
+| category       | text        | Yes      | -                 | 行业分类（一级分类）                     |
+| sub_category   | text        | No       | -                 | 行业子分类（二级分类，如 UI/UX Design）  |
+| workplace_type | text        | No       | -                 | 工作方式（On-site / Hybrid / Remote）    |
+| education_level| text        | No       | -                 | 教育要求（如 Diploma / Degree / None）   |
+| experience_level| text       | No       | -                 | 经验要求（如 1-3 years / No experience） |
+| job_type       | text        | Yes      | -                 | 职位类型（Part-time/Full-time/Contract） |
+| salary_min     | numeric     | Yes      | -                 | 最低薪资                                 |
+| salary_unit    | text        | Yes      | -                 | 薪资单位（hour/month）                   |
+| posted_at      | timestamptz | Yes      | now()             | 发布时间                                 |
+| updated_at     | timestamptz | Yes      | now()             | 最近一次更新时间（用于 Filter recency）  |
+| description    | text        | Yes      | -                 | 职位描述                                 |
+| requirements   | text        | No       | -                 | 任职要求（多行/列表文本）                |
+| logo_url       | text        | No       | -                 | 公司 logo 图片 URL（可空）               |
 
 **Notes**
 
-- Filter 只实现基础筛选：`category` + `job_type`（MVP 优先完成核心功能）。
-- `requirements` 以多行 text 保存（例如 `- xxx\n- xxx`）。
+- Filter 维度（MVP 版）来自 jobs 表字段：  
+  `category`, `sub_category`, `job_type`, `location`, `salary_min`, `workplace_type`, `experience_level`, `education_level`, `updated_at`
+- `sub_category` 的可选值由前端常量维护（见 SUB_CATEGORIES），数据库中存对应字符串即可。
+- `updated_at` 用于“最近更新时间”筛选，目前默认 now()，后续如需自动更新可加触发器。
 
 ---
 
