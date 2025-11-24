@@ -23,15 +23,22 @@ import JobDetailScreen from '../screens/JobDetailScreen';
 import MyApplicationsScreen from '../screens/MyApplicationsScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import CoursePromoScreen from '../screens/CoursePromoScreen';
+
+// Messages & Chat
 import MessagesScreen from '../screens/MessagesScreen';
 import ChatScreen from '../screens/ChatScreen';
 
+// 你新建的“申请详情”页面
+import ApplicationDetailScreen from '../screens/ApplicationDetailScreen';
 
 const Stack = createNativeStackNavigator();
 
 export default function AuthStack() {
   return (
-    <Stack.Navigator initialRouteName="Home" screenOptions={{ headerShown: false }}>
+    <Stack.Navigator
+      initialRouteName="Home"
+      screenOptions={{ headerShown: false }}
+    >
       {/* Auth & onboarding */}
       <Stack.Screen name="Home" component={HomeScreen} />
       <Stack.Screen name="Login" component={LoginScreen} />
@@ -51,12 +58,17 @@ export default function AuthStack() {
       <Stack.Screen name="JobList" component={JobListScreen} />
       <Stack.Screen name="NoResultScreen" component={NoResultScreen} />
       <Stack.Screen name="JobDetail" component={JobDetailScreen} />
+
+      {/* ✅ 新增：从 MyApplications 点 View → ApplicationDetail */}
+      <Stack.Screen name="ApplicationDetail" component={ApplicationDetailScreen} />
+
       <Stack.Screen name="MyApplications" component={MyApplicationsScreen} />
       <Stack.Screen name="Profile" component={ProfileScreen} />
       <Stack.Screen name="CoursePromo" component={CoursePromoScreen} />
+
+      {/* Messages & Chat */}
       <Stack.Screen name="Messages" component={MessagesScreen} />
       <Stack.Screen name="Chat" component={ChatScreen} />
-
     </Stack.Navigator>
   );
 }
