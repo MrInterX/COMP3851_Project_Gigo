@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+// screens/JobDetailScreen.js
+import React, { useEffect, useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -10,6 +11,8 @@ import {
   Image,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useFocusEffect } from "@react-navigation/native";
+
 import { getJobById } from "../services/jobService";
 import {
   applyToJob,
@@ -29,11 +32,8 @@ export default function JobDetailScreen({ route, navigation }) {
   const [applicantsCount, setApplicantsCount] = useState(0);
   const [showFullDesc, setShowFullDesc] = useState(false);
 
-  useEffect(() => {
-    loadData();
-  }, [jobId]);
-
-  async function loadData() {
+  // 加载数据：职位详情 + 申请人数
+  const loadData = useCallback(async () => {
     if (!jobId) return;
     try {
       setLoading(true);
@@ -47,7 +47,19 @@ export default function JobDetailScreen({ route, navigation }) {
     } finally {
       setLoading(false);
     }
-  }
+  }, [jobId]);
+
+  // 初次挂载时加载
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  // 页面每次获得焦点时重新拉一次（从 MyApplications 删除后返回会刷新人数）
+  useFocusEffect(
+    useCallback(() => {
+      loadData();
+    }, [loadData])
+  );
 
   async function handleApply() {
     if (!jobId || applying) return;
@@ -88,13 +100,11 @@ export default function JobDetailScreen({ route, navigation }) {
     : "Salary not provided";
 
   const locationText = job.location || "Location not specified";
-
   const postedText = getPostedText(job.posted_at);
 
-  const applicantsLabel =
-    applicantsCount === 1
-      ? "1 applicant"
-      : `${applicantsCount} applicants`;
+  let applicantsLabel = "No applicants yet";
+  if (applicantsCount === 1) applicantsLabel = "1 applicant";
+  else if (applicantsCount > 1) applicantsLabel = `${applicantsCount} applicants`;
 
   const description =
     job.description || "No description provided for this role.";
@@ -112,17 +122,13 @@ export default function JobDetailScreen({ route, navigation }) {
 
   return (
     <SafeAreaView style={styles.safe}>
-      {/* 顶部返回 & 更多 */}
+      {/* 顶部只保留返回按钮（去掉右上角三个点） */}
       <View style={styles.topBar}>
         <TouchableOpacity
           style={styles.roundIcon}
           onPress={() => navigation.goBack()}
         >
           <Ionicons name="arrow-back" size={22} color={PRIMARY} />
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.roundIcon}>
-          <Ionicons name="ellipsis-vertical" size={20} color={PRIMARY} />
         </TouchableOpacity>
       </View>
 
@@ -168,12 +174,12 @@ export default function JobDetailScreen({ route, navigation }) {
             <Text style={styles.bodyLabel}>Salary</Text>
             <Text style={styles.bodyValue}>{salaryText}</Text>
           </View>
-          <Text style={[styles.smallMuted, { marginTop: 4 }]}>
+          <Text style={[styles.smallMuted, { marginTop: 6 }]}>
             {applicantsLabel}
           </Text>
 
           {/* Job Description */}
-          <View style={{ marginTop: 24 }}>
+          <View style={{ marginTop: 26 }}>
             <Text style={styles.sectionTitle}>Job Description</Text>
             <Text style={styles.sectionBody}>{descriptionPreview}</Text>
 
@@ -190,7 +196,7 @@ export default function JobDetailScreen({ route, navigation }) {
           </View>
 
           {/* Requirements */}
-          <View style={{ marginTop: 28 }}>
+          <View style={{ marginTop: 30 }}>
             <Text style={styles.sectionTitle}>Requirements</Text>
             {requirementsLines.length > 0 ? (
               requirementsLines.map((line, idx) => (
@@ -225,7 +231,7 @@ export default function JobDetailScreen({ route, navigation }) {
 }
 
 /**
- * 把 posted_at 转成 “4 days ago / Today / Recently posted” 这样
+ * 把 posted_at 转成 “4 days ago / Today / Recently posted”
  */
 function getPostedText(postedAt) {
   if (!postedAt) return "Recently posted";
@@ -256,7 +262,7 @@ const styles = StyleSheet.create({
   },
   topBar: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    alignItems: "center",
     paddingHorizontal: 16,
     paddingTop: 8,
   },
@@ -304,13 +310,12 @@ const styles = StyleSheet.create({
     borderRadius: 35,
   },
   logoInitial: {
-    fontSize: 34,   // 原来 32
+    fontSize: 34,
     fontWeight: "700",
     color: PRIMARY,
   },
-
   jobTitle: {
-    fontSize: 22,   // 原来 20
+    fontSize: 22,
     fontWeight: "800",
     color: PRIMARY,
     textAlign: "center",
@@ -321,7 +326,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   metaStrong: {
-    fontSize: 15,   // 原来 13
+    fontSize: 15,
     fontWeight: "600",
     color: PRIMARY,
   },
@@ -343,33 +348,31 @@ const styles = StyleSheet.create({
     alignItems: "baseline",
   },
   bodyLabel: {
-    fontSize: 16,   // 原来 14
+    fontSize: 16,
     fontWeight: "700",
     color: PRIMARY,
   },
   bodyValue: {
-    fontSize: 16,   // 原来 14
+    fontSize: 16,
     fontWeight: "600",
     color: "#111111",
   },
-
   smallMuted: {
-    fontSize: 14,   // 原来 12
+    fontSize: 14,
     color: TEXT_MUTED,
   },
 
   sectionTitle: {
-    fontSize: 18,   // 原来 16
+    fontSize: 18,
     fontWeight: "800",
     color: PRIMARY,
     marginBottom: 6,
   },
   sectionBody: {
-    fontSize: 15,   // 原来 13
-    lineHeight: 22, // 原来 20
+    fontSize: 15,
+    lineHeight: 22,
     color: TEXT_MUTED,
   },
-
   readMoreBtn: {
     marginTop: 18,
     alignSelf: "flex-start",
@@ -379,26 +382,25 @@ const styles = StyleSheet.create({
     backgroundColor: "#E6DDFF",
   },
   readMoreText: {
-    fontSize: 15,   // 原来 13
+    fontSize: 15,
     fontWeight: "600",
     color: PRIMARY,
   },
-
   reqRow: {
     flexDirection: "row",
     alignItems: "flex-start",
     marginBottom: 8,
   },
   reqDot: {
-    fontSize: 20,   // 原来 18
+    fontSize: 20,
     lineHeight: 22,
     color: PRIMARY,
     marginRight: 6,
   },
   reqText: {
     flex: 1,
-    fontSize: 15,    // 原来 13
-    lineHeight: 22,  // 原来 20
+    fontSize: 15,
+    lineHeight: 22,
     color: TEXT_MUTED,
   },
 
@@ -421,22 +423,20 @@ const styles = StyleSheet.create({
   },
   applyText: {
     color: "#FFFFFF",
-    fontSize: 18,    // 原来 16
+    fontSize: 18,
     fontWeight: "800",
     letterSpacing: 0.5,
   },
-
   title: {
-    fontSize: 20,   // 原来 18
+    fontSize: 20,
     fontWeight: "700",
     color: PRIMARY,
     marginBottom: 8,
     textAlign: "center",
   },
   metaText: {
-    fontSize: 15,   // 原来 13
+    fontSize: 15,
     color: TEXT_MUTED,
     textAlign: "center",
   },
 });
-
