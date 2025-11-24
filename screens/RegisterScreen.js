@@ -14,7 +14,7 @@ import { upsertProfile } from '../services/userService';
 
 export default function RegisterScreen({ navigation }) {
   const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('forexample@gmail.com');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [remember, setRemember] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -69,7 +69,7 @@ export default function RegisterScreen({ navigation }) {
             style={styles.input}
             value={fullName}
             onChangeText={setFullName}
-            placeholder="Zachary"
+            placeholder=""
             placeholderTextColor="#C0C0D2"
           />
         </View>

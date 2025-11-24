@@ -12,7 +12,7 @@ import { supabase } from '../services/supabaseClient';
 import { upsertProfile } from '../services/userService';
 
 export default function LoginScreen({ navigation }) {
-  const [email, setEmail] = useState('forexample@gmail.com');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [remember, setRemember] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -34,7 +34,7 @@ export default function LoginScreen({ navigation }) {
           // 确保 users 表有一条记录
           await upsertProfile({ id: data.user.id, full_name: data.user.user_metadata?.full_name || '' });
         }
-        navigation.navigate('Successfully');
+        navigation.navigate('MainHome');
       })
       .catch((err) => {
         alert(err.message);

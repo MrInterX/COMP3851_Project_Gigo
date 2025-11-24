@@ -1,40 +1,41 @@
-# AI Coding Agent Brief
+      # AI Coding Agent Brief
 
-## Overview
+      ## Architecture & Responsibilities
 
-- This is an Expo-managed React Native app (`App.js`) backed by Supabase; mobile screens live in `screens/`, UI atoms in `components/`, data access in `services/`.
-- Navigation is a single native stack declared in `navigation/AuthStack.js`; every route name used across the app must exist there (e.g., `JobDetail`, `Profile`).
-- Business logic flows through Supabase helpers: screens never call `createClient` directly—reuse the wrappers in `services/` to keep auth/session handling consistent.
+      - Expo-managed React Native app (`App.js`) that boots a single native stack (`navigation/AuthStack.js`). If you add a screen, declare it there and keep route names synchronized with every `navigation.navigate` call.
+      - Screens live in `screens/`, shared UI atoms in `components/`, and every data fetch/helper in `services/`; `MainHomeScreen` also renders a custom bottom nav, so reuse its handlers when adding tabs.
+      - Supabase is the only backend. `services/supabaseClient.js` reads keys from `app.config.js -> extra` (populated via `EXPO_PUBLIC_SUPABASE_*` env vars); never create another client or access `process.env` inside screens.
 
-## Environment & Runbook
+      ## Environment & Runbook
 
-- Copy `.env.example` to `.env` and keep `EXPO_PUBLIC_SUPABASE_URL` + `EXPO_PUBLIC_SUPABASE_ANON_KEY`; Expo auto-injects `process.env.EXPO_PUBLIC_*` into the bundle.
-- Install deps with `npm install`, then run `npm run start` (alias for `expo start`); platform-specific scripts (`npm run ios/android/web`) delegate to Expo as well.
-- To inspect Supabase data shapes use `docs/db-schema.md`; table/column names there are the single source of truth and must match every query.
+      - Duplicate `.env.example` into `.env` and fill `EXPO_PUBLIC_SUPABASE_URL/ANON_KEY`. Expo injects these for both native and web targets.
+      - Local loop: `npm install` then `npm run start` (alias for `expo start`). Platform shortcuts (`npm run ios/android/web`) still route through Expo.
+      - Supabase schema is locked to `docs/db-schema.md`. Anytime you add/remove columns, update that doc before touching `services/` or SQL.
 
-## Data & Service Layer
+      ## Data & Service Layer
 
-- `services/supabaseClient.js` centralizes the client; never hardcode keys or instantiate another client.
-- `services/jobService.js` exposes `getJobs({ search, category, jobType, limit })` with chained filters (uses `.or` for ilike searches) plus `getJobById`; replicate this pattern for any new queries so pagination/error handling stays uniform.
-- `services/applicationService.js` wraps all user-specific operations: `applyToJob` checks duplicates before insert, `getApplicationCount` uses `{ count: 'exact', head: true }`, and `getMyApplications` returns the sentinel `'NOT_LOGGED_IN'`—screens rely on that exact string.
-- `services/userService.js` limits profile fields to `id, full_name, location, about_me, skills`; add columns only after updating both this file and `docs/db-schema.md`.
+      - Write new queries beside `jobService`, `applicationService`, or `userService`; most screens call helpers via `load()` to keep auth handling consistent. Only legacy screens (e.g., `JobListScreen`) talk to `supabase` directly—prefer the service pattern going forward.
+      - `jobService.getJobs({ search, category, jobType, limit })` orders by `posted_at DESC`, chains `.eq` filters, and uses `.or` with `%${search}%` for title/company/location ilike searches. Mirror this approach for any new filters/pagination so UX expectations stay aligned.
+      - `applicationService.applyToJob(jobId)` guards duplicates before inserting into `applications`, surfaces errors via `alert`, and triggers `getApplicationCount(jobId)` which relies on `{ count: 'exact', head: true }`. `getMyApplications()` returns `'NOT_LOGGED_IN'` when Supabase auth is missing—`MyApplicationsScreen` depends on that sentinel.
+      - `userService` only exposes `id, full_name, location, about_me, skills`. Extending profile fields requires updating the Supabase table **and** this select/upsert list.
 
-## Screen Patterns
+      ## Screen & UX Patterns
 
-- Screens are functional components with `useState/useEffect`; data fetch happens inside a memoized `load()` (see `screens/JobListScreen.js`, `screens/MainHomeScreen.js`). Keep the `loading` guards + `ActivityIndicator` UX when adding new calls.
-- Navigation params are passed explicitly (`navigation.navigate('JobDetail', { jobId })`); destructure them from `route.params` at the top of the target screen.
-- Alerts are the default user feedback mechanism for network/auth failures (`LoginScreen`, `JobDetailScreen`, `applicationService`); stay consistent unless UX explicitly changes.
-- `ProfileScreen` and `MyApplicationsScreen` gate content on Supabase auth via `supabase.auth.getUser()`; reuse this gate instead of duplicating session state elsewhere.
+      - Screens are simple function components with `useState/useEffect`. Fetch logic usually lives in a `load`/`fetchJobs` function invoked inside `useEffect` and guarded by `loading`/`ActivityIndicator`. Keep that pairing to avoid blank screens on slow networks.
+      - Navigation params are always explicit (e.g., `navigation.navigate('JobDetail', { jobId })`); destructure `route.params` immediately at the top of the destination screen.
+      - Auth-gated flows call `supabase.auth.getUser()` on demand instead of caching session state. See `ProfileScreen` (edit gating) and `MyApplicationsScreen` (read gating) for the pattern.
+      - User feedback defaults to `alert(...)` for both success and error states (`applicationService`, `ProfileScreen`, auth screens). Reuse alerts unless the product team specifies a different UX.
 
-## UI & Styling
+      ## UI & Styling
 
-- Shared presentation resides under `components/` (e.g., `JobCard`, `SearchBar`, `FilterButton`); prefer extending these before creating duplicate inline layouts.
-- Styling uses `StyleSheet.create` with hard-coded palette constants (see `MainHomeScreen.js`); define new palette entries at the top of the file when reusing brand colors.
-- `FilterScreen` demonstrates the pattern for collapsible sections and slider-based filters; follow its approach for additional filter categories.
+      - Shared presentation primitives live in `components/`. `JobCard` expects `title/company/location`, a `type` label, and a pre-formatted `salary` string (e.g., ``${job.salary_min} / ${job.salary_unit}``).
+      - Styling sticks to `StyleSheet.create` with inline palette constants near the top of each file (`MainHomeScreen` defines `PRIMARY`, etc.). If you need new brand colors, declare them once per file to keep them obvious.
+      - `FilterScreen` houses the collapsible section + slider UX; clone that approach for future filters instead of ad-hoc UI.
 
-## Collaboration Notes
+      ## Collaboration Notes
 
-- Follow the branch naming rule (`feature/...`) and keep Supabase secrets out of git; never commit actual keys—`.env` stays local.
-- When introducing new data interactions, update `docs/db-schema.md` and the relevant service before touching screens to avoid divergent field names.
-- Tests are not configured; manual verification goes through `expo start` + Expo Go, so keep changes incremental and easy to smoke-test.
-- If you add new routes or change existing names, update `navigation/AuthStack.js`, any `navigation.navigate` callers, and onboard screens in the same PR to stay coherent.
+      - Branch naming is `feature/...`; never push secrets or `.env` to git.
+      - Manual verification happens through Expo Go—there is no automated test harness. Keep increments small and runnable via `npm run start`.
+      - When you introduce schema changes or new Supabase queries, update both `docs/db-schema.md` and the corresponding service in the same PR to avoid field drift.
+
+`
