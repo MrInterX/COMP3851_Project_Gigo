@@ -8,10 +8,10 @@ export default function ChatScreen({ route }) {
 
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([
-    { id: "1", text: "Hello sir, Good Morning", fromMe: false },
-    { id: "2", text: "Morning, Can I help you?", fromMe: true },
-    { id: "3", text: "I saw the UI/UX Designer vacancy that you uploaded yesterday.", fromMe: false },
-    { id: "4", text: "Oh yes, please send your CV/Resume here.", fromMe: true }
+    { id: "1", text: "Hello sir, Good Morning", fromMe: true },
+    { id: "2", text: "Morning, Can I help you?", fromMe: false },
+    { id: "3", text: "I saw the UI/UX Designer vacancy that you uploaded yesterday.", fromMe: true },
+    { id: "4", text: "Oh yes, please send your CV/Resume here.", fromMe: false }
   ]);
 
   const sendMessage = () => {
