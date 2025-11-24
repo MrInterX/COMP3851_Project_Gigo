@@ -23,6 +23,9 @@ import JobDetailScreen from '../screens/JobDetailScreen';
 import MyApplicationsScreen from '../screens/MyApplicationsScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import CoursePromoScreen from '../screens/CoursePromoScreen';
+import MessagesScreen from '../screens/MessagesScreen';
+import ChatScreen from '../screens/ChatScreen';
+
 
 const Stack = createNativeStackNavigator();
 
@@ -51,6 +54,9 @@ export default function AuthStack() {
       <Stack.Screen name="MyApplications" component={MyApplicationsScreen} />
       <Stack.Screen name="Profile" component={ProfileScreen} />
       <Stack.Screen name="CoursePromo" component={CoursePromoScreen} />
+      <Stack.Screen name="Messages" component={MessagesScreen} />
+      <Stack.Screen name="Chat" component={ChatScreen} />
+
     </Stack.Navigator>
   );
 }

@@ -292,10 +292,10 @@ export default function MainHomeScreen({ navigation }) {
 
           <TouchableOpacity
             style={styles.bottomItem}
-            onPress={() => navigation.navigate('Profile')}
+            onPress={() => navigation.navigate('Messages')}
           >
-            <Text style={styles.bottomIcon}>☺</Text>
-            <Text style={styles.bottomLabel}>Profile</Text>
+            <Text style={styles.bottomIcon}>💬</Text>
+            <Text style={styles.bottomLabel}>Chat</Text>
           </TouchableOpacity>
         </View>
       </View>
