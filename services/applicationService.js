@@ -129,3 +129,31 @@ export async function getMyApplications() {
     return [];
   }
 }
+export async function deleteApplication(jobId) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      alert("You must be logged in to delete an application.");
+      return false;
+    }
+
+    const { error } = await supabase
+      .from("applications")
+      .delete()
+      .eq("user_id", user.id)
+      .eq("job_id", jobId);
+
+    if (error) {
+      console.log("deleteApplication error:", error);
+      alert("Failed to delete application. Please try again.");
+      return false;
+    }
+
+    alert("Application removed.");
+    return true;
+  } catch (err) {
+    console.log("deleteApplication unexpected error:", err);
+    alert("Failed to delete application. Please try again.");
+    return false;
+  }
+}
