@@ -1,38 +1,38 @@
-// screens/JobDetailScreen.js
+// screens/ApplicationDetailScreen.js
 import React, { useEffect, useState, useCallback } from "react";
 import {
+  SafeAreaView,
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
-  TouchableOpacity,
-  ScrollView,
   ActivityIndicator,
+  ScrollView,
+  TouchableOpacity,
   Image,
+  Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
-
 import { getJobById } from "../services/jobService";
 import {
-  applyToJob,
   getApplicationCount,
+  deleteApplication,
 } from "../services/applicationService";
 
-const PRIMARY = "#1B0258";       // 深紫主色
-const SCREEN_BG = "#F6F5FA";     // 整体背景
-const TEXT_MUTED = "#68687D";
+const PRIMARY = "#1B0258";
+const SCREEN_BG = "#F6F5FA";
 const CARD_BG = "#FFFFFF";
+const TEXT_MUTED = "#68687D";
 
-export default function JobDetailScreen({ route, navigation }) {
-  const { jobId } = route.params || {};
+export default function ApplicationDetailScreen({ route, navigation }) {
+  const { jobId, applicationId } = route.params || {};
+
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [applying, setApplying] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [applicantsCount, setApplicantsCount] = useState(0);
   const [showFullDesc, setShowFullDesc] = useState(false);
 
-  // 加载数据：职位详情 + 申请人数
   const loadData = useCallback(async () => {
     if (!jobId) return;
     try {
@@ -43,43 +43,69 @@ export default function JobDetailScreen({ route, navigation }) {
       const count = await getApplicationCount(jobId);
       setApplicantsCount(count || 0);
     } catch (err) {
-      console.log("JobDetailScreen loadData error:", err);
+      console.log("ApplicationDetail loadData error:", err);
     } finally {
       setLoading(false);
     }
   }, [jobId]);
 
-  // 初次挂载时加载
   useEffect(() => {
     loadData();
   }, [loadData]);
 
-  // 页面每次获得焦点时重新拉一次（从 MyApplications 删除后返回会刷新人数）
   useFocusEffect(
     useCallback(() => {
       loadData();
     }, [loadData])
   );
 
-  async function handleApply() {
-    if (!jobId || applying) return;
-    try {
-      setApplying(true);
-      await applyToJob(jobId);
-      const count = await getApplicationCount(jobId);
-      setApplicantsCount(count || 0);
-    } catch (err) {
-      console.log("JobDetailScreen apply error:", err);
-    } finally {
-      setApplying(false);
-    }
-  }
+  const handleDelete = () => {
+    if (!applicationId) return;
+
+    Alert.alert(
+      "Remove application?",
+      "Are you sure you want to delete this application?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              setDeleting(true);
+              const ok = await deleteApplication(applicationId);
+              if (ok) {
+                const count = await getApplicationCount(jobId);
+                setApplicantsCount(count || 0);
+                navigation.goBack();
+              }
+            } catch (err) {
+              console.log("ApplicationDetail delete error:", err);
+            } finally {
+              setDeleting(false);
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const handleOpenChat = () => {
+    navigation.navigate("Chat", {
+      user: {
+        name: job.company || "Employer",
+        avatar:
+          job.logo_url ||
+          "https://cdn-icons-png.flaticon.com/512/149/149071.png",
+      },
+    });
+  };
 
   if (loading) {
     return (
       <SafeAreaView style={styles.center}>
         <ActivityIndicator size="large" color={PRIMARY} />
-        <Text style={styles.metaText}>Loading job details...</Text>
+        <Text style={styles.metaText}>Loading application details...</Text>
       </SafeAreaView>
     );
   }
@@ -122,13 +148,20 @@ export default function JobDetailScreen({ route, navigation }) {
 
   return (
     <SafeAreaView style={styles.safe}>
-      {/* 顶部只保留返回按钮（去掉右上角三个点） */}
       <View style={styles.topBar}>
         <TouchableOpacity
           style={styles.roundIcon}
           onPress={() => navigation.goBack()}
         >
           <Ionicons name="arrow-back" size={22} color={PRIMARY} />
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.roundIcon} onPress={handleOpenChat}>
+          <Ionicons
+            name="chatbubble-ellipses-outline"
+            size={20}
+            color={PRIMARY}
+          />
         </TouchableOpacity>
       </View>
 
@@ -137,9 +170,7 @@ export default function JobDetailScreen({ route, navigation }) {
         contentContainerStyle={{ paddingBottom: 120 }}
         showsVerticalScrollIndicator={false}
       >
-        {/* 顶部大卡片：Logo + 标题 + 公司 & 地点 & 发布时间 */}
         <View style={styles.heroCard}>
-          {/* Logo 圆形 */}
           <View style={styles.logoWrapper}>
             {job.logo_url ? (
               <Image
@@ -148,16 +179,12 @@ export default function JobDetailScreen({ route, navigation }) {
                 resizeMode="cover"
               />
             ) : (
-              <Text style={styles.logoInitial}>
-                {job.company?.[0] || "G"}
-              </Text>
+              <Text style={styles.logoInitial}>{job.company?.[0] || "G"}</Text>
             )}
           </View>
 
-          {/* 职位标题 */}
           <Text style={styles.jobTitle}>{job.title}</Text>
 
-          {/* 公司 · 地点 · 发布时间 */}
           <View style={styles.metaRow}>
             <Text style={styles.metaStrong}>{job.company}</Text>
             <View style={styles.dot} />
@@ -167,9 +194,7 @@ export default function JobDetailScreen({ route, navigation }) {
           </View>
         </View>
 
-        {/* 中间内容区域 */}
         <View style={styles.body}>
-          {/* Salary 行 + Applicants 简要信息 */}
           <View style={styles.rowBetween}>
             <Text style={styles.bodyLabel}>Salary</Text>
             <Text style={styles.bodyValue}>{salaryText}</Text>
@@ -178,7 +203,7 @@ export default function JobDetailScreen({ route, navigation }) {
             {applicantsLabel}
           </Text>
 
-          {/* Job Description */}
+          {/* Description */}
           <View style={{ marginTop: 26 }}>
             <Text style={styles.sectionTitle}>Job Description</Text>
             <Text style={styles.sectionBody}>{descriptionPreview}</Text>
@@ -214,15 +239,15 @@ export default function JobDetailScreen({ route, navigation }) {
         </View>
       </ScrollView>
 
-      {/* 底部大按钮区域 */}
+      {/* 底部 DELETE */}
       <View style={styles.bottomBar}>
         <TouchableOpacity
-          style={[styles.applyBtn, applying && { opacity: 0.7 }]}
-          onPress={handleApply}
-          disabled={applying}
+          style={[styles.deleteBtn, deleting && { opacity: 0.7 }]}
+          onPress={handleDelete}
+          disabled={deleting}
         >
-          <Text style={styles.applyText}>
-            {applying ? "APPLYING..." : "APPLY NOW"}
+          <Text style={styles.deleteText}>
+            {deleting ? "DELETING..." : "DELETE"}
           </Text>
         </TouchableOpacity>
       </View>
@@ -230,9 +255,6 @@ export default function JobDetailScreen({ route, navigation }) {
   );
 }
 
-/**
- * 把 posted_at 转成 “4 days ago / Today / Recently posted”
- */
 function getPostedText(postedAt) {
   if (!postedAt) return "Recently posted";
   try {
@@ -260,9 +282,23 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: 24,
   },
+  metaText: {
+    fontSize: 15,
+    color: TEXT_MUTED,
+    textAlign: "center",
+    marginTop: 8,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: PRIMARY,
+    marginBottom: 8,
+    textAlign: "center",
+  },
+
   topBar: {
     flexDirection: "row",
-    alignItems: "center",
+    justifyContent: "space-between",
     paddingHorizontal: 16,
     paddingTop: 8,
   },
@@ -414,29 +450,17 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     backgroundColor: "rgba(246,245,250,0.96)",
   },
-  applyBtn: {
+  deleteBtn: {
     height: 56,
     borderRadius: 20,
-    backgroundColor: PRIMARY,
+    backgroundColor: "#DC2626",
     alignItems: "center",
     justifyContent: "center",
   },
-  applyText: {
+  deleteText: {
     color: "#FFFFFF",
     fontSize: 18,
     fontWeight: "800",
     letterSpacing: 0.5,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: PRIMARY,
-    marginBottom: 8,
-    textAlign: "center",
-  },
-  metaText: {
-    fontSize: 15,
-    color: TEXT_MUTED,
-    textAlign: "center",
   },
 });
