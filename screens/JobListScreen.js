@@ -19,12 +19,29 @@ import JobCard from "../components/JobCard";
 import { Ionicons } from "@expo/vector-icons";
 import { getJobsWithFilters } from "../services/jobService";
 
-const hotKeywords = ["Waiter", "Part-time jobs", "Barista", "Kitchen Crew"];
+const hotKeywords = ["Tutor", "Driver", "Barista", "Designer"];
 
 export default function JobListScreen({ navigation, route }) {
   const routeParams = route?.params ?? null;
+  const presetJobs = Array.isArray(routeParams?.presetJobs)
+    ? routeParams.presetJobs
+    : null;
+  const hasPresetJobs = Boolean(presetJobs?.length);
 
   const normalizedFilters = useMemo(() => {
+    if (!routeParams || hasPresetJobs) {
+      return {
+        category: "",
+        subCategory: "",
+        jobType: "",
+        workplaceType: "",
+        experience: "",
+        location: "",
+        salaryMin: null,
+        salaryMax: null,
+        lastUpdate: "",
+      };
+    }
     const raw = routeParams ?? {};
     const sanitize = (value) =>
       value && value !== "Any" ? value : "";
@@ -41,18 +58,19 @@ export default function JobListScreen({ navigation, route }) {
         typeof raw.salaryMax === "number" ? raw.salaryMax : null,
       lastUpdate: raw.lastUpdate || "",
     };
-  }, [routeParams]);
+  }, [routeParams, hasPresetJobs]);
 
-  const hasFilters = useMemo(
-    () => Boolean(routeParams && Object.keys(routeParams).length),
-    [routeParams]
-  );
+  const hasFilters = useMemo(() => {
+    if (!routeParams) return false;
+    return Object.keys(routeParams).some((key) => key !== "presetJobs");
+  }, [routeParams]);
 
   const [jobs, setJobs] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
 
   const fetchJobs = useCallback(async () => {
+    if (hasPresetJobs) return;
     setLoading(true);
     try {
       const data = await getJobsWithFilters({
@@ -66,11 +84,21 @@ export default function JobListScreen({ navigation, route }) {
     } finally {
       setLoading(false);
     }
-  }, [search, normalizedFilters]);
+  }, [hasPresetJobs, search, normalizedFilters]);
 
   useEffect(() => {
+    if (hasPresetJobs && presetJobs) {
+      const keyword = search.trim().toLowerCase();
+      const filtered = presetJobs.filter((job) => {
+        const haystack = `${job.title} ${job.company} ${job.location}`.toLowerCase();
+        return !keyword || haystack.includes(keyword);
+      });
+      setJobs(filtered);
+      setLoading(false);
+      return;
+    }
     fetchJobs();
-  }, [fetchJobs]);
+  }, [hasPresetJobs, presetJobs, search, fetchJobs]);
 
   // -------- HANDLE SUBMIT SEARCH ----------
   const handleSubmitSearch = (event) => {
@@ -85,10 +113,11 @@ export default function JobListScreen({ navigation, route }) {
 
   // -------- CHECK FOR NO RESULTS & NAVIGATE ----------
   useEffect(() => {
+    if (hasPresetJobs) return;
     if (!loading && hasFilters && jobs.length === 0) {
       navigation.replace("NoResultScreen");
     }
-  }, [loading, hasFilters, jobs.length, navigation]);
+  }, [loading, hasFilters, jobs.length, navigation, hasPresetJobs]);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
@@ -96,16 +125,20 @@ export default function JobListScreen({ navigation, route }) {
 
         {/* SEARCH BAR */}
         <View style={styles.searchRow}>
-          <SearchBar
-            value={search}
-            onChangeText={setSearch}
-            placeholder="Search job title or keywords"
-            returnKeyType="search"
-            onSubmitEditing={handleSubmitSearch}
-          />
-
-          <TouchableOpacity onPress={() => navigation.navigate("Filter")}>
-            <Ionicons name="options-outline" size={28} color="#150B3D" />
+          <View style={styles.searchInputWrapper}>
+            <SearchBar
+              value={search}
+              onChangeText={setSearch}
+              placeholder="Search job title or keywords"
+              returnKeyType="search"
+              onSubmitEditing={handleSubmitSearch}
+            />
+          </View>
+          <TouchableOpacity
+            style={styles.filterButton}
+            onPress={() => navigation.navigate("Filter")}
+          >
+            <Ionicons name="options-outline" size={20} color="#FFFFFF" />
           </TouchableOpacity>
         </View>
 
@@ -143,7 +176,9 @@ export default function JobListScreen({ navigation, route }) {
                 company={item.company}
                 location={item.location}
                 type={item.job_type}
-                salary={`${item.salary_min} / ${item.salary_unit}`}
+                salary={item.salary_min}
+                salaryUnit={item.salary_unit}
+                logoUrl={item.logo_url}
                 icon="briefcase-outline"
                 onPress={() =>
                   navigation.navigate("JobDetail", { jobId: item.id })
@@ -165,10 +200,21 @@ const styles = StyleSheet.create({
   searchRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 14,
+    gap: 12,
     marginBottom: 16,
     paddingHorizontal: 18,
     marginTop: 10,
+  },
+  searchInputWrapper: {
+    flex: 1,
+  },
+  filterButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    backgroundColor: "#150B3D",
+    alignItems: "center",
+    justifyContent: "center",
   },
   hotTitle: {
     fontSize: 16,
