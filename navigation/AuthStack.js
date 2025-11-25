@@ -30,6 +30,7 @@ import ChatScreen from '../screens/ChatScreen';
 
 // 你新建的“申请详情”页面
 import ApplicationDetailScreen from '../screens/ApplicationDetailScreen';
+import SettingsScreen from '../screens/SettingsScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -64,6 +65,7 @@ export default function AuthStack() {
 
       <Stack.Screen name="MyApplications" component={MyApplicationsScreen} />
       <Stack.Screen name="Profile" component={ProfileScreen} />
+      <Stack.Screen name="Settings" component={SettingsScreen} />
       <Stack.Screen name="CoursePromo" component={CoursePromoScreen} />
 
       {/* Messages & Chat */}

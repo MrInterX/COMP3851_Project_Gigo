@@ -14,6 +14,7 @@ import {
 import JobCard from '../components/JobCard';
 import { getJobs } from '../services/jobService';
 import remoteJobs from '../data/remoteJobs';
+import { supabase } from '../services/supabaseClient';
 
 const PRIMARY = '#120042';
 const PRIMARY_DARK = '#1B0258';
@@ -58,6 +59,20 @@ export default function MainHomeScreen({ navigation }) {
       event.nativeEvent.contentOffset.x / BANNER_SNAP
     );
     setActiveBanner(index);
+  };
+
+  const handleAvatarPress = async () => {
+    try {
+      const { data, error } = await supabase.auth.getUser();
+      if (error || !data?.user) {
+        navigation.navigate('Login');
+        return;
+      }
+      navigation.navigate('Profile');
+    } catch (err) {
+      console.log('avatar press check user error', err);
+      navigation.navigate('Login');
+    }
   };
 
   const renderJobs = () => {
@@ -110,7 +125,7 @@ export default function MainHomeScreen({ navigation }) {
             <TouchableOpacity
               style={styles.avatar}
               activeOpacity={0.7}
-              onPress={() => navigation.navigate('Profile')}
+              onPress={handleAvatarPress}
             >
               <Text style={styles.avatarText}>☺</Text>
             </TouchableOpacity>

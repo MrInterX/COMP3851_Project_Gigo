@@ -49,6 +49,10 @@ export default function LoginScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.card}>
+        <TouchableOpacity style={styles.skipButton} onPress={() => navigation.navigate('MainHome')}>
+          <Text style={styles.skipText}>Skip</Text>
+        </TouchableOpacity>
+
         <Text style={styles.title}>Welcome Back</Text>
         <Text style={styles.subtitle}>
           Log in to find smart gigs that fit your life.
@@ -135,6 +139,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingVertical: 32,
     elevation: 4,
+    position: 'relative',
+  },
+  skipButton: {
+    alignSelf: 'flex-end',
+  },
+  skipText: {
+    color: '#FF8A00',
+    fontWeight: '700',
+    fontSize: 13,
   },
   title: {
     fontSize: 28,
