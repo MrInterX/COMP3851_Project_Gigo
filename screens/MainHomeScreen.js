@@ -11,6 +11,7 @@ import {
   Dimensions,
   Image,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import JobCard from '../components/JobCard';
 import { getJobs } from '../services/jobService';
 import remoteJobs from '../data/remoteJobs';
@@ -28,9 +29,11 @@ export default function MainHomeScreen({ navigation }) {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeBanner, setActiveBanner] = useState(0);
+  const [userName, setUserName] = useState('');
 
   useEffect(() => {
     loadJobs();
+    loadUserName();
   }, []);
 
   async function loadJobs() {
@@ -42,6 +45,22 @@ export default function MainHomeScreen({ navigation }) {
       console.log('load home jobs error', err);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function loadUserName() {
+    try {
+      const { data, error } = await supabase.auth.getUser();
+      if (error || !data?.user) {
+        setUserName('');
+        return;
+      }
+      const metaName = data.user.user_metadata?.full_name || '';
+      const emailName = data.user.email ? data.user.email.split('@')[0] : '';
+      setUserName(metaName || emailName);
+    } catch (err) {
+      console.log('loadUserName error', err);
+      setUserName('');
     }
   }
 
@@ -120,14 +139,14 @@ export default function MainHomeScreen({ navigation }) {
           <View style={styles.headerRow}>
             <View>
               <Text style={styles.helloText}>Hello</Text>
-              <Text style={styles.nameText}>Welcome back</Text>
+              <Text style={styles.nameText}>{userName ? userName : 'there'}</Text>
             </View>
             <TouchableOpacity
               style={styles.avatar}
               activeOpacity={0.7}
               onPress={handleAvatarPress}
             >
-              <Text style={styles.avatarText}>☺</Text>
+              <Ionicons name="person-circle-outline" size={32} color="#FFF" />
             </TouchableOpacity>
           </View>
 
@@ -210,7 +229,7 @@ export default function MainHomeScreen({ navigation }) {
               style={styles.filterButton}
               onPress={() => navigation.navigate('Specialization')}
             >
-              <Text style={styles.filterIcon}>⛭</Text>
+              <Ionicons name="options-outline" size={20} color="#FFFFFF" />
             </TouchableOpacity>
           </View>
 
@@ -238,7 +257,7 @@ export default function MainHomeScreen({ navigation }) {
                 style={[
                   styles.statCardSmall,
                   styles.statCardSmallSpacer,
-                  { backgroundColor: '#E5DEFF' },
+                  { backgroundColor: '#DCD5FF' },
                 ]}
                 onPress={() => navigation.navigate('JobList', { jobType: 'Full-time' })}
                 activeOpacity={0.8}
@@ -277,7 +296,7 @@ export default function MainHomeScreen({ navigation }) {
             style={styles.bottomItem}
             onPress={() => navigation.navigate('MainHome')}
           >
-            <Text style={styles.bottomIcon}>⌂</Text>
+            <Ionicons name="home-outline" size={22} color={PRIMARY_DARK} />
             <Text style={styles.bottomLabel}>Home</Text>
           </TouchableOpacity>
 
@@ -285,24 +304,25 @@ export default function MainHomeScreen({ navigation }) {
             style={styles.bottomItem}
             onPress={() => navigation.navigate('JobList')}
           >
-            <Text style={styles.bottomIcon}>◎</Text>
+            <Ionicons name="briefcase-outline" size={22} color={PRIMARY_DARK} />
             <Text style={styles.bottomLabel}>Jobs</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.centerButtonWrapper}
-            onPress={() => navigation.navigate('MyApplications')}
+            onPress={() => navigation.navigate('AI')}
           >
             <View style={styles.centerButton}>
-              <Text style={styles.centerPlus}>＋</Text>
+              <Ionicons name="sparkles-outline" size={24} color="#FFF" />
             </View>
+            <Text style={[styles.bottomLabel, { marginTop: 6 }]}>Gigo AI</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.bottomItem}
             onPress={() => navigation.navigate('MyApplications')}
           >
-            <Text style={styles.bottomIcon}>✉</Text>
+            <Ionicons name="document-text-outline" size={22} color={PRIMARY_DARK} />
             <Text style={styles.bottomLabel}>Applied</Text>
           </TouchableOpacity>
 
@@ -310,7 +330,7 @@ export default function MainHomeScreen({ navigation }) {
             style={styles.bottomItem}
             onPress={() => navigation.navigate('Messages')}
           >
-            <Text style={styles.bottomIcon}>💬</Text>
+            <Ionicons name="chatbubbles-outline" size={22} color={PRIMARY_DARK} />
             <Text style={styles.bottomLabel}>Chat</Text>
           </TouchableOpacity>
         </View>
@@ -339,27 +359,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   helloText: {
-    fontSize: 18,
-    color: '#7B7B8F',
+    fontSize: 20,
+    color: '#2F2F46',
+    fontWeight: '700',
   },
   nameText: {
     marginTop: 4,
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: '800',
     color: PRIMARY_DARK,
   },
   avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#FFE4C4',
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#1B0A69',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  avatarText: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: PRIMARY_DARK,
   },
 
   bannerCarousel: {
@@ -536,17 +552,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   statCardLarge: {
-    flex: 1.2,
-    minHeight: 120,
+    flex: 1.1,
+    minHeight: 140,
   },
   statsColRight: {
-    flex: 0.9,
-    marginLeft: 18,
+    flex: 0.95,
+    marginLeft: 12,
     justifyContent: 'space-between',
   },
   statCardSmall: {
     borderRadius: 20,
-    padding: 12,
+    padding: 14,
   },
   statCardSmallSpacer: {
     marginBottom: 16,
@@ -617,10 +633,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  centerPlus: {
-    color: '#FFFFFF',
-    fontSize: 24,
-    fontWeight: '700',
-    marginTop: -2,
+  bottomLabel: {
+    fontSize: 10,
+    color: '#7B7B8F',
+    marginTop: 2,
   },
 });
