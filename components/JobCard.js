@@ -9,46 +9,84 @@ export default function JobCard({
   location,
   type,
   salary,
+  salaryUnit,
   icon = "briefcase-outline",
+  logoUrl,
   onPress,
 }) {
+  const salaryLabel = React.useMemo(() => {
+    if (salary === undefined || salary === null || salary === "") {
+      return "Salary not provided";
+    }
+
+    const normalizeUnit = (unit) => {
+      const lowered = (unit || "").toLowerCase();
+      if (lowered === "month") return "month";
+      if (lowered === "hour") return "hour";
+      return "";
+    };
+
+    if (typeof salary === "string") {
+      const trimmed = salary.trim();
+      if (/^from\s+/i.test(trimmed)) return trimmed;
+      if (trimmed.includes("/")) return `From ${trimmed.replace(/^From\s+/i, "")}`;
+      const unitLabel = normalizeUnit(salaryUnit);
+      return unitLabel ? `From ${trimmed} / ${unitLabel}` : `From ${trimmed}`;
+    }
+
+    const numericValue = Number(salary);
+    if (Number.isNaN(numericValue)) {
+      return `From ${salary}`;
+    }
+    const formattedValue = `$${numericValue.toLocaleString()}`;
+    const unitLabel = normalizeUnit(salaryUnit);
+    return unitLabel ? `From ${formattedValue} / ${unitLabel}` : `From ${formattedValue}`;
+  }, [salary, salaryUnit]);
+
+  const leadingNode = (
+    <View style={styles.iconWrapper}>
+      {logoUrl ? (
+        <Image source={{ uri: logoUrl }} style={styles.companyLogo} />
+      ) : (
+        <Ionicons name={icon} size={20} color="#FFFFFF" />
+      )}
+    </View>
+  );
+
   return (
-    <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.8}>
-      {/* 左侧 Logo */}
-      <View style={styles.logoBox}>
-        <Ionicons name={icon} size={26} color="#3C3C3C" />
-      </View>
+    <TouchableOpacity style={styles.card} onPress={onPress}>
+      <View style={styles.cardHeader}>
+        {leadingNode}
 
-      <View style={{ flex: 1 }}>
-        {/* 职位标题 */}
-        <Text style={styles.title}>{title}</Text>
+        <View style={{ flex: 1 }}>
+          {/* 职位标题 */}
+          <Text style={styles.title}>{title}</Text>
 
-        {/* 公司 & 地点 */}
-        <Text style={styles.company}>
-          {company} · {location}
-        </Text>
-
-        {/* 标签 */}
-        <View style={styles.tagRow}>
-          <View style={styles.tag}>
-            <Text style={styles.tagText}>{type}</Text>
-          </View>
-
-          <View style={styles.tag}>
-            <Text style={styles.tagText}>Entry Level</Text>
-          </View>
-
-          <View style={styles.tag}>
-            <Text style={styles.tagText}>Shift</Text>
-          </View>
-        </View>
-
-        {/* 发布时间 和 薪水 */}
-        <View style={styles.bottomRow}>
-          <Text style={styles.posted}>Posted 30 minutes ago</Text>
-          <Text style={styles.salary}>
-            From <Text style={{ fontWeight: "700" }}>{salary}</Text>/hour
+          {/* 公司 & 地点 */}
+          <Text style={styles.company}>
+            {company} · {location}
           </Text>
+
+          {/* 标签 */}
+          <View style={styles.tagRow}>
+            <View style={styles.tag}>
+              <Text style={styles.tagText}>{type}</Text>
+            </View>
+
+            <View style={styles.tag}>
+              <Text style={styles.tagText}>Entry Level</Text>
+            </View>
+
+            <View style={styles.tag}>
+              <Text style={styles.tagText}>Shift</Text>
+            </View>
+          </View>
+
+          {/* 发布时间 和 薪水 */}
+          <View style={styles.bottomRow}>
+            <Text style={styles.posted}>Posted 30 minutes ago</Text>
+            <Text style={styles.salaryText}>{salaryLabel}</Text>
+          </View>
         </View>
       </View>
 
@@ -63,7 +101,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     borderRadius: 20,
     padding: 16,
-    flexDirection: "row",
+    flexDirection: "column",
     alignItems: "flex-start",
     marginBottom: 16,
     shadowColor: "#000",
@@ -71,7 +109,12 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 2,
   },
-  logoBox: {
+  cardHeader: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    width: "100%",
+  },
+  iconWrapper: {
     width: 44,
     height: 44,
     borderRadius: 22,
@@ -79,6 +122,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginRight: 14,
+  },
+  companyLogo: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: "#FFFFFF",
   },
   title: {
     fontSize: 16,
@@ -112,12 +161,13 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginTop: 4,
     alignItems: "center",
+    width: "100%",
   },
   posted: {
     fontSize: 11,
     color: "#9A9A9A",
   },
-  salary: {
+  salaryText: {
     fontSize: 13,
     color: "#150B3D",
     fontWeight: "600",

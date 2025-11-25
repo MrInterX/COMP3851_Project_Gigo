@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import JobCard from '../components/JobCard';
 import { getJobs } from '../services/jobService';
+import remoteJobs from '../data/remoteJobs';
 
 const PRIMARY = '#120042';
 const PRIMARY_DARK = '#1B0258';
@@ -77,24 +78,20 @@ export default function MainHomeScreen({ navigation }) {
       );
     }
 
-    return jobs.map((job) => {
-      const salaryText = job.salary_min
-        ? `$${job.salary_min} / ${job.salary_unit || 'hour'}`
-        : 'Salary not provided';
-
-      return (
-        <JobCard
-          key={job.id}
-          title={job.title}
-          company={job.company}
-          location={job.location}
-          type={job.job_type}
-          salary={salaryText}
-          icon="briefcase-outline"
-          onPress={() => navigation.navigate('JobDetail', { jobId: job.id })}
-        />
-      );
-    });
+    return jobs.map((job) => (
+      <JobCard
+        key={job.id}
+        title={job.title}
+        company={job.company}
+        location={job.location}
+        type={job.job_type}
+        salary={job.salary_min}
+        salaryUnit={job.salary_unit}
+        logoUrl={job.logo_url}
+        icon="briefcase-outline"
+        onPress={() => navigation.navigate('JobDetail', { jobId: job.id })}
+      />
+    ));
   };
 
   return (
@@ -210,7 +207,11 @@ export default function MainHomeScreen({ navigation }) {
                 styles.statCardLarge,
                 { backgroundColor: '#E4F4FF' },
               ]}
-              onPress={() => navigation.navigate('JobList', { jobType: 'Remote' })}
+              onPress={() =>
+                navigation.navigate('JobList', {
+                  presetJobs: remoteJobs,
+                })
+              }
               activeOpacity={0.8}
             >
               <Text style={styles.statNumber}>44.5k</Text>
