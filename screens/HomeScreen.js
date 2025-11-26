@@ -58,14 +58,14 @@ export default function HomeScreen({ navigation }) {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: '#EDEAFF', // 外层背景（接近你的截图）
+    backgroundColor: '#FFFFFF',
   },
 
   card: {
     flex: 1,
-    margin: 12,
-    borderRadius: 32,
-    backgroundColor: '#FFFFFF',
+    margin: 0,
+    borderRadius: 0,
+    backgroundColor: 'transparent',
     paddingHorizontal: 22,
     paddingVertical: 18,
   },
@@ -76,14 +76,15 @@ const styles = StyleSheet.create({
   },
   logoText: {
     fontSize: 20,
-    fontWeight: '700',
+    fontWeight: '800',
     color: PRIMARY_DARK,
   },
 
   illustrationWrapper: {
-    height: height * 0.45, // 占屏幕45%
+    height: height * 0.46,
     justifyContent: 'center',
     alignItems: 'center',
+    marginTop: 6,
   },
   illustration: {
     width: '100%',
@@ -91,38 +92,45 @@ const styles = StyleSheet.create({
   },
 
   textSection: {
-    height: height * 0.30, // 占屏幕30%
+    height: height * 0.30,
     justifyContent: 'flex-start',
-    marginTop: 10,
+    marginTop: 14,
   },
   titleOrange: {
-    fontSize: 30,
+    fontSize: 32,
     fontWeight: '800',
     color: ORANGE,
+    marginBottom: 4,
   },
   titleDark: {
-    fontSize: 30,
+    fontSize: 32,
     fontWeight: '800',
     color: PRIMARY_DARK,
+    marginBottom: 2,
   },
   subtitle: {
-    marginTop: 12,
+    marginTop: 16,
     fontSize: 15,
-    lineHeight: 22,
+    lineHeight: 23,
     color: '#6A6A7A',
   },
 
   // 固定在右下角
   circleButton: {
     position: 'absolute',
-    bottom: 28,
-    right: 24,
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+    bottom: 32,
+    right: 22,
+    width: 66,
+    height: 66,
+    borderRadius: 33,
     backgroundColor: PRIMARY_DARK,
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: PRIMARY_DARK,
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 6,
   },
   circleArrow: {
     color: '#FFFFFF',

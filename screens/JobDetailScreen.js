@@ -100,7 +100,8 @@ export default function JobDetailScreen({ route, navigation }) {
     : "Salary not provided";
 
   const locationText = job.location || "Location not specified";
-  const postedText = getPostedText(job.posted_at);
+  const postedText = getRelativeTime(job.posted_at, "posted");
+  const updatedText = getRelativeTime(job.updated_at, "updated");
 
   let applicantsLabel = "No applicants yet";
   if (applicantsCount === 1) applicantsLabel = "1 applicant";
@@ -157,26 +158,30 @@ export default function JobDetailScreen({ route, navigation }) {
           {/* 职位标题 */}
           <Text style={styles.jobTitle}>{job.title}</Text>
 
-          {/* 公司 · 地点 · 发布时间 */}
+          {/* 公司 · 地点 */}
           <View style={styles.metaRow}>
             <Text style={styles.metaStrong}>{job.company}</Text>
             <View style={styles.dot} />
             <Text style={styles.metaStrong}>{locationText}</Text>
-            <View style={styles.dot} />
-            <Text style={styles.metaStrong}>{postedText}</Text>
+          </View>
+
+          {/* 发布时间 & 更新时间 */}
+          <View style={styles.timeRow}>
+            <Text style={styles.metaSoft}>{`Posted at ${postedText}`}</Text>
+            <Text style={styles.metaSoft}>{`Updated at ${updatedText}`}</Text>
           </View>
         </View>
 
         {/* 中间内容区域 */}
         <View style={styles.body}>
-          {/* Salary 行 + Applicants 简要信息 */}
-          <View style={styles.rowBetween}>
+          {/* Applicants */}
+          <Text style={styles.applicantsLabel}>{applicantsLabel}</Text>
+
+          {/* Salary 行 */}
+          <View style={[styles.rowBetween, { marginTop: 10 }]}>
             <Text style={styles.bodyLabel}>Salary</Text>
             <Text style={styles.bodyValue}>{salaryText}</Text>
           </View>
-          <Text style={[styles.smallMuted, { marginTop: 6 }]}>
-            {applicantsLabel}
-          </Text>
 
           {/* Job Description */}
           <View style={{ marginTop: 26 }}>
@@ -201,7 +206,6 @@ export default function JobDetailScreen({ route, navigation }) {
             {requirementsLines.length > 0 ? (
               requirementsLines.map((line, idx) => (
                 <View key={idx} style={styles.reqRow}>
-                  <Text style={styles.reqDot}>•</Text>
                   <Text style={styles.reqText}>{line}</Text>
                 </View>
               ))
@@ -230,21 +234,22 @@ export default function JobDetailScreen({ route, navigation }) {
   );
 }
 
-/**
- * 把 posted_at 转成 “4 days ago / Today / Recently posted”
- */
-function getPostedText(postedAt) {
-  if (!postedAt) return "Recently posted";
+function getRelativeTime(dateInput, fallback = "Recently updated") {
+  if (!dateInput) return fallback;
   try {
-    const posted = new Date(postedAt);
+    const posted = new Date(dateInput);
     const now = new Date();
     const diffMs = now.getTime() - posted.getTime();
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    if (diffDays <= 0) return "Today";
+    const diffMinutes = Math.floor(diffMs / (1000 * 60));
+    if (diffMinutes < 1) return "Just now";
+    if (diffMinutes < 60) return `${diffMinutes} min ago`;
+    const diffHours = Math.floor(diffMinutes / 60);
+    if (diffHours < 24) return `${diffHours} hr${diffHours > 1 ? "s" : ""} ago`;
+    const diffDays = Math.floor(diffHours / 24);
     if (diffDays === 1) return "1 day ago";
     return `${diffDays} days ago`;
   } catch {
-    return "Recently posted";
+    return fallback;
   }
 }
 
@@ -324,11 +329,16 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginTop: 10,
+    marginBottom: 6,
   },
   metaStrong: {
-    fontSize: 15,
-    fontWeight: "600",
+    fontSize: 17,
+    fontWeight: "700",
     color: PRIMARY,
+  },
+  metaSoft: {
+    fontSize: 13,
+    color: TEXT_MUTED,
   },
   dot: {
     width: 5,
@@ -337,10 +347,22 @@ const styles = StyleSheet.create({
     backgroundColor: PRIMARY,
     marginHorizontal: 10,
   },
+  timeRow: {
+    marginTop: 24,
+    width: "100%",
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
 
   body: {
     marginTop: 26,
     paddingHorizontal: 24,
+  },
+  applicantsLabel: {
+    fontSize: 18,
+    fontWeight: "800",
+    color: PRIMARY,
+    marginBottom: 12,
   },
   rowBetween: {
     flexDirection: "row",
@@ -348,13 +370,13 @@ const styles = StyleSheet.create({
     alignItems: "baseline",
   },
   bodyLabel: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "700",
     color: PRIMARY,
   },
   bodyValue: {
-    fontSize: 16,
-    fontWeight: "600",
+    fontSize: 18,
+    fontWeight: "700",
     color: "#111111",
   },
   smallMuted: {
