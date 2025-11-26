@@ -154,17 +154,28 @@ export async function getMyApplications() {
  */
 export async function deleteApplication(applicationId) {
   try {
+    if (!applicationId) {
+      alert("Application not found.");
+      return false;
+    }
+
     const user = await getCurrentUser();
 
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from("applications")
       .delete()
       .eq("id", applicationId) // 按 application 主键删
-      .eq("user_id", user.id); // 再加一层保护
+      .eq("user_id", user.id) // 再加一层保护
+      .select("id");
 
     if (error) {
       console.log("deleteApplication error:", error);
       alert("Failed to delete application. Please try again.");
+      return false;
+    }
+
+    if (!data || data.length === 0) {
+      alert("Application not found for the current user.");
       return false;
     }
 

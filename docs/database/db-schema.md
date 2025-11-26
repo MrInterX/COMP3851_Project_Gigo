@@ -77,24 +77,6 @@
 
 ---
 
-## 4. saved_jobs
-
-**用途**：保存用户收藏岗位记录，用于 Saved Jobs 页面。
-
-| Field      | Type        | Required | Default           | Description                      |
-| ---------- | ----------- | -------- | ----------------- | -------------------------------- |
-| id         | uuid        | Yes (PK) | gen_random_uuid() | 收藏记录主键                     |
-| user_id    | uuid        | Yes      | -                 | 收藏者 id（users.id / auth.uid） |
-| job_id     | uuid        | Yes      | -                 | 被收藏职位 id（jobs.id）         |
-| created_at | timestamptz | Yes      | now()             | 收藏时间                         |
-
-**Notes**
-
-- Saved Jobs 为核心功能之一（UI 已包含收藏页）。
-- 收藏关系为多对多：一个用户可收藏多个职位。
-
----
-
 ## Relationships (ER Summary)
 
 - **users (1) —— (N) applications**  
@@ -102,12 +84,6 @@
 
 - **jobs (1) —— (N) applications**  
   applications.job_id → jobs.id
-
-- **users (1) —— (N) saved_jobs**  
-  saved_jobs.user_id → users.id
-
-- **jobs (1) —— (N) saved_jobs**  
-  saved_jobs.job_id → jobs.id
 
 ---
 
