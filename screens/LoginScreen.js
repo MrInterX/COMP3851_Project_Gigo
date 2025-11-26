@@ -9,7 +9,7 @@ import {
   Switch,
 } from 'react-native';
 import { supabase } from '../services/supabaseClient';
-import { upsertProfile } from '../services/userService';
+import { getProfile, upsertProfile } from '../services/userService';
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
@@ -31,8 +31,14 @@ export default function LoginScreen({ navigation }) {
           return;
         }
         if (data?.user) {
-          // 确保 users 表有一条记录
-          await upsertProfile({ id: data.user.id, full_name: data.user.user_metadata?.full_name || '' });
+          // 仅在不存在 profile 时创建，避免用旧的 Auth metadata 覆盖已编辑的名字
+          const { data: existingProfile } = await getProfile(data.user.id);
+          if (!existingProfile) {
+            await upsertProfile({
+              id: data.user.id,
+              full_name: data.user.user_metadata?.full_name || '',
+            });
+          }
         }
         navigation.navigate('MainHome');
       })

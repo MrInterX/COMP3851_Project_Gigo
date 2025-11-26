@@ -60,11 +60,26 @@ export default function ProfileScreen({ navigation }) {
     }
     setSaving(true);
     const { error } = await upsertProfile(profile);
+
+    // 同步更新 Supabase Auth 的 display name，保持与 users.full_name 一致
+    const { error: authError } = await supabase.auth.updateUser({
+      data: { full_name: profile.full_name || '' },
+    });
+
     setSaving(false);
     setShowEdit(false);
 
-    if (error) alert(error.message);
-    else alert('Profile saved!');
+    if (error) {
+      alert(error.message);
+      return;
+    }
+    if (authError) {
+      console.log('update auth metadata error', authError);
+      alert('Profile saved, but failed to sync display name.');
+      return;
+    }
+
+    alert('Profile saved!');
   }
 
   const displayName = profile.full_name || 'Your Name';
