@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
     paddingTop: 14,
     paddingBottom: 14,
   },
-  content: { paddingBottom: 180, gap: 18 },
+  content: { paddingBottom: 180, gap: 20, paddingHorizontal: 10 },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
     borderRadius: 0,
     paddingVertical: 10,
     paddingHorizontal: 0,
-    marginBottom: 20,
+    marginBottom: 22,
   },
   greet: { fontSize: 18, fontWeight: '700', color: '#1B0258', lineHeight: 24 },
   greetSub: { marginTop: 6, fontSize: 14, color: '#E7E4FF' },
@@ -195,8 +195,8 @@ const styles = StyleSheet.create({
   actionGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 12,
-    marginBottom: 16,
+    gap: 14,
+    marginBottom: 20,
     justifyContent: 'space-between',
   },
   actionCard: {
@@ -209,7 +209,7 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     shadowOffset: { width: 0, height: 3 },
     elevation: 2,
-    marginBottom: 12,
+    marginBottom: 14,
   },
   actionIconWrap: {
     width: 32,
@@ -235,8 +235,9 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#ECECF2',
     borderRadius: 14,
-    marginHorizontal: 6,
-    marginBottom: 6,
+    marginHorizontal: 14,
+    marginBottom: 12,
+    marginTop: 8,
   },
   input: { flex: 1, height: 46, fontSize: 14 },
   sendBtn: {

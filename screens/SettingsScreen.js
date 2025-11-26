@@ -35,7 +35,7 @@ export default function SettingsScreen({ navigation }) {
       </View>
 
       <View style={styles.card}>
-        <View style={styles.row}>
+        <View style={[styles.row, styles.rowDivider]}>
           <View style={styles.rowLeft}>
             <Ionicons name="notifications-outline" size={22} color="#2F2F46" />
             <Text style={styles.rowLabel}>Notifications</Text>
@@ -48,7 +48,7 @@ export default function SettingsScreen({ navigation }) {
           />
         </View>
 
-        <View style={styles.row}>
+        <View style={[styles.row, styles.rowDivider]}>
           <View style={styles.rowLeft}>
             <Ionicons name="moon-outline" size={22} color="#2F2F46" />
             <Text style={styles.rowLabel}>Dark mode</Text>
@@ -61,7 +61,7 @@ export default function SettingsScreen({ navigation }) {
           />
         </View>
 
-        <TouchableOpacity style={styles.row} activeOpacity={0.8}>
+        <TouchableOpacity style={[styles.row, styles.rowDivider]} activeOpacity={0.8}>
           <View style={styles.rowLeft}>
             <Ionicons name="lock-closed-outline" size={22} color="#2F2F46" />
             <Text style={styles.rowLabel}>Password</Text>
@@ -89,14 +89,16 @@ const styles = StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: '#F8F8FB',
-    paddingHorizontal: 18,
-    paddingTop: 10,
+    paddingHorizontal: 22,
+    paddingTop: 16,
+    paddingBottom: 20,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginTop: 8,
+    marginTop: 4,
+    marginBottom: 12,
   },
   title: {
     fontSize: 22,
@@ -107,7 +109,7 @@ const styles = StyleSheet.create({
     marginTop: 24,
     backgroundColor: '#FFFFFF',
     borderRadius: 18,
-    paddingVertical: 8,
+    paddingVertical: 10,
     shadowColor: '#000',
     shadowOpacity: 0.04,
     shadowRadius: 8,
@@ -118,10 +120,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F2F2F7',
+    paddingHorizontal: 18,
+    paddingVertical: 18,
   },
   rowLeft: {
     flexDirection: 'row',
@@ -133,10 +133,15 @@ const styles = StyleSheet.create({
     color: '#2F2F46',
     fontWeight: '600',
   },
+  rowDivider: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#F2F2F7',
+  },
   saveBtn: {
-    marginTop: 32,
+    marginTop: 36,
+    marginHorizontal: 12,
     backgroundColor: '#120042',
-    borderRadius: 14,
+    borderRadius: 16,
     paddingVertical: 16,
     alignItems: 'center',
     justifyContent: 'center',
