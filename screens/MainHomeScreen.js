@@ -36,11 +36,21 @@ export default function MainHomeScreen({ navigation }) {
     loadUserName();
   }, []);
 
+  const pickRandom = (arr, count) => {
+    const copy = [...arr];
+    for (let i = copy.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    return copy.slice(0, count);
+  };
+
   async function loadJobs() {
     try {
       setLoading(true);
-      const data = await getJobs({ limit: 5 });
-      setJobs(data);
+      const data = await getJobs({ limit: 50 });
+      const selection = pickRandom(data || [], 10);
+      setJobs(selection);
     } catch (err) {
       console.log('load home jobs error', err);
     } finally {
@@ -139,7 +149,7 @@ export default function MainHomeScreen({ navigation }) {
           <View style={styles.headerRow}>
             <View>
               <Text style={styles.helloText}>Hello</Text>
-              <Text style={styles.nameText}>{userName ? userName : 'there'}</Text>
+              <Text style={styles.nameText}>{userName ? userName : 'Welcome'}</Text>
             </View>
             <TouchableOpacity
               style={styles.avatar}
@@ -220,6 +230,7 @@ export default function MainHomeScreen({ navigation }) {
               activeOpacity={0.8}
               onPress={() => navigation.navigate('JobList')}
             >
+              <Ionicons name="search-outline" size={18} color="#C0C0D2" style={{ marginRight: 8 }} />
               <Text style={[styles.searchInput, { color: '#C0C0D2' }]}>
                 Search job title or keywords
               </Text>
@@ -233,12 +244,11 @@ export default function MainHomeScreen({ navigation }) {
             </TouchableOpacity>
           </View>
 
-          {/* 统计卡片（改成按钮） */}
+          {/* 统计卡片 */}
           <View style={styles.statsRow}>
             <TouchableOpacity
               style={[
                 styles.statCard,
-                styles.statCardLarge,
                 { backgroundColor: '#E4F4FF' },
               ]}
               onPress={() =>
@@ -255,8 +265,8 @@ export default function MainHomeScreen({ navigation }) {
             <View style={styles.statsColRight}>
               <TouchableOpacity
                 style={[
-                  styles.statCardSmall,
-                  styles.statCardSmallSpacer,
+                  styles.statCard,
+                  styles.statCardSpacer,
                   { backgroundColor: '#DCD5FF' },
                 ]}
                 onPress={() => navigation.navigate('JobList', { jobType: 'Full-time' })}
@@ -267,7 +277,7 @@ export default function MainHomeScreen({ navigation }) {
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={[styles.statCardSmall, { backgroundColor: '#FFE4C4' }]}
+                style={[styles.statCard, { backgroundColor: '#FFE4C4' }]}
                 onPress={() => navigation.navigate('JobList', { jobType: 'Part-time' })}
                 activeOpacity={0.8}
               >
@@ -285,7 +295,7 @@ export default function MainHomeScreen({ navigation }) {
             </TouchableOpacity>
           </View>
 
-          <View style={styles.jobsWrapper}>{renderJobs()}</View>
+          <View style={[styles.jobsWrapper, { marginTop: 12 }]}>{renderJobs()}</View>
 
           <View style={{ height: 80 }} />
         </ScrollView>
@@ -520,7 +530,8 @@ const styles = StyleSheet.create({
     height: 46,
     borderRadius: 16,
     backgroundColor: '#FFFFFF',
-    justifyContent: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingHorizontal: 16,
   },
   searchInput: {
@@ -544,28 +555,19 @@ const styles = StyleSheet.create({
   statsRow: {
     marginTop: 20,
     flexDirection: 'row',
+    alignItems: 'stretch',
   },
   statCard: {
     flex: 1,
     borderRadius: 20,
     padding: 16,
     justifyContent: 'center',
-  },
-  statCardLarge: {
-    flex: 1.1,
-    minHeight: 140,
+    marginBottom: 12,
   },
   statsColRight: {
-    flex: 0.95,
+    flex: 1,
     marginLeft: 12,
     justifyContent: 'space-between',
-  },
-  statCardSmall: {
-    borderRadius: 20,
-    padding: 14,
-  },
-  statCardSmallSpacer: {
-    marginBottom: 16,
   },
   statNumber: {
     fontSize: 20,
