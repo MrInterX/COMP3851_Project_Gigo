@@ -6,8 +6,8 @@ const SearchBar = ({
   value,
   onChangeText,
   placeholder,
-  onSubmitEditing,   // ⭐ 必须接收
-  returnKeyType      // ⭐ 必须接收
+  onSubmitEditing, 
+  returnKeyType      
 }) => {
   return (
     <View style={styles.container}>
@@ -19,7 +19,6 @@ const SearchBar = ({
         onChangeText={onChangeText}
         placeholderTextColor="#A0A0A0"
 
-        // ⭐⭐ 关键点：透传触发回车事件
         onSubmitEditing={onSubmitEditing}
         returnKeyType={returnKeyType}
       />

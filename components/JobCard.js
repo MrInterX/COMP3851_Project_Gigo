@@ -12,6 +12,7 @@ export default function JobCard({
   salaryUnit,
   icon = "briefcase-outline",
   logoUrl,
+  updatedAt,
   onPress,
 }) {
   const salaryLabel = React.useMemo(() => {
@@ -53,6 +54,25 @@ export default function JobCard({
     </View>
   );
 
+  const postedLabel = React.useMemo(() => {
+    if (!updatedAt) return "Recently updated";
+    try {
+      const updated = new Date(updatedAt);
+      const now = new Date();
+      const diffMs = now.getTime() - updated.getTime();
+      const diffMinutes = Math.floor(diffMs / (1000 * 60));
+      if (diffMinutes < 1) return "Just now";
+      if (diffMinutes < 60) return `${diffMinutes} min ago`;
+      const diffHours = Math.floor(diffMinutes / 60);
+      if (diffHours < 24) return `${diffHours} hr${diffHours > 1 ? "s" : ""} ago`;
+      const diffDays = Math.floor(diffHours / 24);
+      if (diffDays === 1) return "1 day ago";
+      return `${diffDays} days ago`;
+    } catch {
+      return "Recently updated";
+    }
+  }, [updatedAt]);
+
   return (
     <TouchableOpacity style={styles.card} onPress={onPress}>
       <View style={styles.cardHeader}>
@@ -84,14 +104,12 @@ export default function JobCard({
 
           {/* 发布时间 和 薪水 */}
           <View style={styles.bottomRow}>
-            <Text style={styles.posted}>Posted 30 minutes ago</Text>
+            <Text style={styles.posted}>{postedLabel}</Text>
             <Text style={styles.salaryText}>{salaryLabel}</Text>
           </View>
         </View>
       </View>
 
-      {/* 右上 Bookmark */}
-      <Ionicons name="bookmark-outline" size={22} color="#8E8E8E" />
     </TouchableOpacity>
   );
 }
@@ -100,7 +118,7 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: "#FFFFFF",
     borderRadius: 20,
-    padding: 16,
+    padding: 18,
     flexDirection: "column",
     alignItems: "flex-start",
     marginBottom: 16,
@@ -115,23 +133,23 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   iconWrapper: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: "#F1F1F1",
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "#E9E9F5",
     alignItems: "center",
     justifyContent: "center",
     marginRight: 14,
   },
   companyLogo: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     backgroundColor: "#FFFFFF",
   },
   title: {
-    fontSize: 16,
-    fontWeight: "700",
+    fontSize: 17,
+    fontWeight: "800",
     color: "#150B3D",
   },
   company: {
@@ -142,7 +160,7 @@ const styles = StyleSheet.create({
   tagRow: {
     flexDirection: "row",
     marginTop: 8,
-    marginBottom: 6,
+    marginBottom: 8,
   },
   tag: {
     backgroundColor: "#F4F4F4",
@@ -159,7 +177,7 @@ const styles = StyleSheet.create({
   bottomRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 4,
+    marginTop: 8,
     alignItems: "center",
     width: "100%",
   },
@@ -168,8 +186,8 @@ const styles = StyleSheet.create({
     color: "#9A9A9A",
   },
   salaryText: {
-    fontSize: 13,
+    fontSize: 15,
     color: "#150B3D",
-    fontWeight: "600",
+    fontWeight: "800",
   },
 });

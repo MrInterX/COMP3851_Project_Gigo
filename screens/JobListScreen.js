@@ -179,6 +179,7 @@ export default function JobListScreen({ navigation, route }) {
                 salary={item.salary_min}
                 salaryUnit={item.salary_unit}
                 logoUrl={item.logo_url}
+                updatedAt={item.updated_at}
                 icon="briefcase-outline"
                 onPress={() =>
                   navigation.navigate("JobDetail", { jobId: item.id })

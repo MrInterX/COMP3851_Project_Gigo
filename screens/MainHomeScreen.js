@@ -132,6 +132,7 @@ export default function MainHomeScreen({ navigation }) {
         salary={job.salary_min}
         salaryUnit={job.salary_unit}
         logoUrl={job.logo_url}
+        updatedAt={job.updated_at}
         icon="briefcase-outline"
         onPress={() => navigation.navigate('JobDetail', { jobId: job.id })}
       />
