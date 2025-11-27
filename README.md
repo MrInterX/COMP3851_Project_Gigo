@@ -1,15 +1,3 @@
-# 直接用最新的主分支这个目前可以跑
-# 测试的账户/密码：
-默认的测试账户 - 邮箱：test@test.com / 密码：123456
-每个人也都有一个账户 - 邮箱：姓（小写）@test.com  （例如：li@test.com）/ 密码：123456
-也可以用自己的邮箱注册，能收到验证邮件，只是还不能验证。
-# 整合开发进度的时候，在保证功能的前提下，ai可能对一些UI做了改动，这个很难控制，所以请大家新建分支再做修改和进一步开发。
-# UI元素/图标/图片等，请从Figma下载对应的UI元素，Figma导出选项可选PNG/SVG格式。
-# 请使用feature/... 命名分支，VSCode可以生成详细的提交信息。
-# docs/db-schema.md 是数据库的基本信息；.env.example 是supabase的链接和密钥（放在项目根目录然后删掉.example）
-
----
-
 # 📱 Gig Job Placement App
 一个使用 **React Native（Expo）+ Supabase** 开发的跨平台零工兼职匹配移动应用。  
 
@@ -155,7 +143,7 @@ npx expo start
 
 ---
 
-# 开发分工说明（非常重要）
+# 开发分工说明
 为了提高开发效率、减少互相阻塞风险，团队采用 **4 个独立模块** 的分工方式。
 
 ---
@@ -363,18 +351,7 @@ git push origin feature/<branch-name>
 - ❗ **不要上传 Supabase service key**  
 - 修改表结构需要同步团队  
 - 每次开发前必须 `git pull`  
-- 所有错误必须有提示（Alert/Toast）  
-- 不要出现白屏  
-- UI 不需要漂亮，但必须可用  
-
----
-
-# 团队与ChatGPT协作规则
-1. 使用 ChatGPT 前必须先提供本 README。  
-2. ChatGPT 不得更改技术路线（React Native + Supabase）。  
-3. ChatGPT 提供的代码必须本地运行后才能提交。  
-4. ChatGPT 不得擅自修改数据库字段/表结构。  
-5. ChatGPT 必须依据本 README 的文件结构生成代码。  
+- 所有错误必须有提示（Alert/Toast）   
 
 ---
 
