@@ -197,7 +197,7 @@ export default function MainHomeScreen({ navigation }) {
                 onPress={() => navigation.navigate('CoursePromo')}
               >
                 <View style={styles.bannerAdContent}>
-                  <Text style={styles.bannerAdTitle}>50% off</Text>
+                  <Text style={styles.bannerAdTitle}>15% off</Text>
                   <Text style={styles.bannerAdSubtitle}>take any courses</Text>
                   <View style={styles.bannerAdButton}>
                     <Text style={styles.bannerAdButtonText}>Join Now</Text>
