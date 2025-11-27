@@ -40,7 +40,7 @@ export default function AIScreen({ navigation }) {
   }
 
   useEffect(() => {
-    const finalText = `Hi ${userName || 'there'}, I'm Gigo AI. I can browse roles for you, check your applications, or open your latest messages. What would you like to do today?`;
+    const finalText = `HHi ${userName || 'there'}, I'm Gigo AI. I can browse roles for you, check your applications, or open your latest messages. What would you like to do today?`;
     let index = 0;
     setDisplayGreeting('');
     const timer = setInterval(() => {
@@ -187,22 +187,23 @@ const styles = StyleSheet.create({
     paddingHorizontal: 0,
     marginBottom: 18,
   },
-  greet: { fontSize: 18, fontWeight: '700', color: '#1B0258', lineHeight: 24 },
+  greet: { fontSize: 18, marginLeft: 20,marginRight: 20, fontWeight: '700', color: '#1B0258', lineHeight: 24 },
   greetSub: { marginTop: 6, fontSize: 14, color: '#E7E4FF' },
-  sectionLabel: { fontSize: 15, fontWeight: '700', color: '#1B0258', marginBottom: 10, marginTop: 4 },
+  sectionLabel: { fontSize: 20, marginLeft: 10, marginRight: 20, fontWeight: '700', color: '#1B0258', marginBottom: 10, marginTop: 4 },
   actions: { gap: 10 },
   actionGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 12,
+    gap: 20,
     marginBottom: 8,
     justifyContent: 'space-between',
   },
   actionCard: {
     width: '47%',
     borderRadius: 16,
-    paddingVertical: 16,
-    paddingHorizontal: 14,
+    paddingVertical: 15,
+    paddingHorizontal: 15,
+    marginLeft: 1,
     shadowColor: '#000',
     shadowOpacity: 0.04,
     shadowRadius: 6,
@@ -257,11 +258,13 @@ const styles = StyleSheet.create({
   userBubble: {
     alignSelf: 'flex-end',
     backgroundColor: '#120042',
+    marginRight: 10,
     borderBottomRightRadius: 6,
   },
   aiBubble: {
     alignSelf: 'flex-start',
     backgroundColor: '#FFFFFF',
+    marginLeft: 10,
     borderBottomLeftRadius: 6,
   },
   userText: { color: '#FFF', fontSize: 14 },
