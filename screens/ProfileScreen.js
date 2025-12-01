@@ -100,10 +100,10 @@ export default function ProfileScreen({ navigation }) {
   const workExperiences = [
     {
       id: 'exp-1',
-      title: 'Manager',
-      company: 'Amazon Inc',
-      dateRange: 'Jan 2015 - Feb 2022',
-      duration: '7 years',
+      title: 'UX Designer Intern',
+      company: 'SPH Media',
+      dateRange: 'Jan 2024 - Feb 2025',
+      duration: '1 year',
     },
   ];
 
@@ -111,27 +111,27 @@ export default function ProfileScreen({ navigation }) {
     {
       id: 'edu-1',
       title: 'Information Technology',
-      school: 'University of Oxford',
-      dateRange: 'Sep 2010 - Aug 2013',
+      school: 'University of Newcastle',
+      dateRange: 'Sep 2022 - Aug 2025',
       duration: '3 years',
     },
   ];
 
-  const languages = ['English', 'German', 'Spanish', 'Mandarin', 'Italian'];
+  const languages = ['English', 'Mandarin'];
 
   const awards = [
     {
       id: 'awd-1',
-      title: 'Wireless Symposium (RWS)',
-      subtitle: 'Young Scientist',
-      year: '2014',
+      title: 'Best Project Award',
+      subtitle: 'School of Engineering & IT',
+      year: '2025',
     },
   ];
 
   const resume = {
-    name: 'Jamet kudasi – CV – UI/UX Designer',
+    name: 'Zachary – CV',
     size: '867 Kb',
-    date: '14 Feb 2022 at 11:30 am',
+    date: '14 Nov 2025 at 11:30 am',
   };
 
   if (loading) {
